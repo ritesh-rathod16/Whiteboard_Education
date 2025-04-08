@@ -32,6 +32,7 @@
             overflow-x: hidden;
         }
 
+        /* Welcome Modal */
         .modal {
             display: none;
             position: fixed;
@@ -61,6 +62,22 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .modal p {
+            margin-bottom: 2rem;
+            color: #555;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
         .btn {
             padding: 0.8rem 1.5rem;
             border: none;
@@ -84,6 +101,11 @@
             color: #333;
         }
 
+        .btn-secondary:hover {
+            background-color: #dee2e6;
+        }
+
+        /* Main Layout */
         .app-container {
             display: none;
             flex-direction: column;
@@ -98,6 +120,56 @@
             background-color: white;
             box-shadow: var(--box-shadow);
             z-index: 100;
+        }
+
+        .logo {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .session-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .session-code {
+            background-color: #f1f3f5;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        .user-controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #555;
+            transition: var(--transition);
+            padding: 0.5rem;
+            border-radius: 50%;
+        }
+
+        .control-btn:hover {
+            background-color: #f1f3f5;
+            color: var(--primary-color);
         }
 
         .main-content {
@@ -145,6 +217,288 @@
             overflow: hidden;
         }
 
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-title {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .close-sidebar {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        /* Tools Panel */
+        .tools-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: white;
+            box-shadow: var(--box-shadow);
+            border-radius: var(--border-radius);
+        }
+
+        .tool-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .tool-group-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tool-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            background-color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .tool-btn:hover {
+            border-color: var(--primary-color);
+        }
+
+        .tool-btn.active {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .color-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .color-btn.active {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .slider {
+            flex: 1;
+        }
+
+        /* Participants List */
+        .participant-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .participant-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .participant-item:hover {
+            background-color: #f1f3f5;
+        }
+
+        .participant-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 0.5rem;
+            font-weight: bold;
+        }
+
+        .participant-name {
+            flex: 1;
+        }
+
+        /* Chat */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: #555;
+        }
+
+        .message-content {
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            background-color: #f1f3f5;
+            margin-top: 0.2rem;
+            word-wrap: break-word;
+        }
+
+        .own-message {
+            align-self: flex-end;
+        }
+
+        .own-message .message-content {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            resize: none;
+        }
+
+        .chat-send-btn {
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+
+        /* Video */
+        .video-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .video-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .video-item {
+            position: relative;
+            background-color: #333;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+
+        .video-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .video-controls {
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        /* Bottom Controls */
+        .bottom-controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            background-color: white;
+            box-shadow: var(--box-shadow);
+            z-index: 100;
+        }
+
+        .page-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-indicator {
+            font-weight: bold;
+        }
+
+        /* Notifications */
         .notification {
             position: fixed;
             bottom: 1rem;
@@ -162,6 +516,83 @@
         .notification.show {
             transform: translateX(0);
         }
+
+        /* Join Session Modal */
+        .join-tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1rem;
+        }
+
+        .join-tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .join-tab.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .join-tab-content {
+            display: none;
+        }
+
+        .join-tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+        }
+
+        /* Name Input Modal */
+        .name-input-modal .modal-content {
+            max-width: 400px;
+        }
+
+        .name-input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 200;
+                width: 280px;
+            }
+
+            .sidebar.collapsed {
+                width: 0;
+            }
+
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -173,6 +604,48 @@
             <div class="btn-group">
                 <button class="btn btn-primary" id="newSessionBtn">Start New Session</button>
                 <button class="btn btn-secondary" id="joinSessionBtn">Join Existing Session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Session Modal -->
+    <div class="modal" id="joinSessionModal">
+        <div class="modal-content">
+            <h2>Join Existing Session</h2>
+            <div class="join-tabs">
+                <div class="join-tab active" data-tab="link">Join with Link</div>
+                <div class="join-tab" data-tab="code">Join with Code</div>
+            </div>
+            
+            <div class="join-tab-content active" id="linkTab">
+                <div class="form-group">
+                    <label for="sessionLinkInput">Session Link</label>
+                    <input type="text" id="sessionLinkInput" class="form-control" placeholder="https://yourdomain.com/ABCDEF">
+                </div>
+            </div>
+            
+            <div class="join-tab-content" id="codeTab">
+                <div class="form-group">
+                    <label for="sessionCodeInput">6-digit Session Code</label>
+                    <input type="text" id="sessionCodeInput" class="form-control" placeholder="ABCDEF" maxlength="6">
+                </div>
+            </div>
+            
+            <div class="btn-group" style="margin-top: 1rem;">
+                <button class="btn btn-primary" id="confirmJoinBtn" disabled>Join Session</button>
+                <button class="btn btn-secondary" id="cancelJoinBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Name Input Modal -->
+    <div class="modal name-input-modal" id="nameInputModal">
+        <div class="modal-content">
+            <h2>Enter Your Name</h2>
+            <p>This name will be displayed to other participants in the session.</p>
+            <input type="text" id="nameInput" class="name-input" placeholder="Your name" maxlength="20">
+            <div class="btn-group">
+                <button class="btn btn-primary" id="confirmNameBtn">Continue</button>
             </div>
         </div>
     </div>
@@ -193,6 +666,28 @@
                 </div>
                 <input type="text" id="inviteLink" style="position: absolute; left: -9999px;">
             </div>
+            <div class="user-controls">
+                <button class="control-btn" id="participantsBtn" title="Participants">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                    </svg>
+                </button>
+                <button class="control-btn" id="videoBtn" title="Video">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z"/>
+                    </svg>
+                </button>
+                <button class="control-btn" id="chatBtn" title="Chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+                    </svg>
+                </button>
+                <button class="control-btn" id="moreBtn" title="More options">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                    </svg>
+                </button>
+            </div>
         </header>
 
         <div class="main-content">
@@ -200,168 +695,149 @@
                 <canvas id="whiteboard"></canvas>
                 <div class="permanent-grid" id="permanentGrid"></div>
             </div>
+            
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-title" id="sidebarTitle">Sidebar</div>
+                    <button class="close-sidebar" id="closeSidebarBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="sidebar-content" id="sidebarContent">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-controls">
+            <div class="tools-panel">
+                <div class="tool-group">
+                    <div class="tool-group-title">Drawing Tools</div>
+                    <div class="tool-buttons">
+                        <button class="tool-btn active" id="penTool" title="Pen">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                            </svg>
+                        </button>
+                        <button class="tool-btn" id="lineTool" title="Line">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M0 1.5A.5.5 0 0 1 .5 1h15a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5v-13zm1 13V2h14v12.5H1z"/>
+                            </svg>
+                        </button>
+                        <button class="tool-btn" id="rectangleTool" title="Rectangle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M1.5 1a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-13a.5.5 0 0 0-.5-.5h-13zm1 1.5v12h12v-12h-12z"/>
+                            </svg>
+                        </button>
+                        <button class="tool-btn" id="circleTool" title="Circle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            </svg>
+                        </button>
+                        <button class="tool-btn" id="textTool" title="Text">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M12.258 3h-8.51l-.083 2.46h.479c.26-1.544.758-1.783 2.693-1.845l.424-.013v7.827c0 .663-.144.82-1.3.923v.52h4.082v-.52c-1.162-.103-1.306-.26-1.306-.923V3.602l.431.013c1.934.062 2.434.301 2.693 1.846h.479L12.258 3z"/>
+                            </svg>
+                        </button>
+                        <button class="tool-btn" id="eraserTool" title="Eraser">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879zm2.121.707a1 1 0 0 0-1.414 0L4.16 7.547l5.293 5.293 4.633-4.633a1 1 0 0 0 0-1.414l-3.879-3.879zM8.746 13.547 3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293l.16-.16z"/>
+                            </svg>
+                        </button>
+                        <button class="tool-btn" id="selectTool" title="Select">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-title">Colors</div>
+                    <div class="color-palette">
+                        <button class="color-btn active" style="background-color: #000000;" data-color="#000000"></button>
+                        <button class="color-btn" style="background-color: #ffffff; border: 1px solid #ddd;" data-color="#ffffff"></button>
+                        <button class="color-btn" style="background-color: #ff0000;" data-color="#ff0000"></button>
+                        <button class="color-btn" style="background-color: #00ff00;" data-color="#00ff00"></button>
+                        <button class="color-btn" style="background-color: #0000ff;" data-color="#0000ff"></button>
+                        <button class="color-btn" style="background-color: #ffff00;" data-color="#ffff00"></button>
+                        <button class="color-btn" style="background-color: #ff00ff;" data-color="#ff00ff"></button>
+                        <button class="color-btn" style="background-color: #00ffff;" data-color="#00ffff"></button>
+                        <button class="color-btn" style="background-color: #ff9900;" data-color="#ff9900"></button>
+                        <button class="color-btn" style="background-color: #9900ff;" data-color="#9900ff"></button>
+                        <button class="color-btn" style="background-color: #0099ff;" data-color="#0099ff"></button>
+                        <button class="color-btn" style="background-color: #ff0099;" data-color="#ff0099"></button>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-title">Line Width</div>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="20" value="3" class="slider" id="lineWidthSlider">
+                        <span id="lineWidthValue">3px</span>
+                    </div>
+                </div>
+                
+                <div class="tool-group">
+                    <div class="tool-group-title">Actions</div>
+                    <div class="tool-buttons">
+                        <button class="btn btn-secondary" id="clearPageBtn">Clear Page</button>
+                        <button class="btn btn-secondary" id="insertImageBtn">Insert Image</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page-controls">
+                <button class="btn btn-secondary" id="prevPageBtn" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                    </svg>
+                </button>
+                <div class="page-indicator">
+                    Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                </div>
+                <button class="btn btn-secondary" id="nextPageBtn" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </button>
+                <button class="btn btn-primary" id="addPageBtn">Add Page</button>
+            </div>
         </div>
     </div>
 
     <!-- Notification -->
     <div class="notification" id="notification"></div>
 
+    <!-- Load Socket.io and scripts at the end -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js" defer></script>
     <script>
-        // Simplified version focusing on core whiteboard functionality
+        // Show welcome modal immediately
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const welcomeModal = document.getElementById('welcomeModal');
-            const appContainer = document.getElementById('appContainer');
+            document.getElementById('welcomeModal').style.display = 'flex';
+            
+            // Initialize canvas
             const whiteboard = document.getElementById('whiteboard');
-            const permanentGrid = document.getElementById('permanentGrid');
-            const notification = document.getElementById('notification');
-            const newSessionBtn = document.getElementById('newSessionBtn');
-            const copyCodeBtn = document.getElementById('copyCodeBtn');
-            const codeDisplay = document.getElementById('codeDisplay');
-            const inviteLink = document.getElementById('inviteLink');
-
-            // Canvas setup
             const ctx = whiteboard.getContext('2d');
             whiteboard.width = window.innerWidth * 0.8;
             whiteboard.height = window.innerHeight * 0.7;
             
-            // App state
-            let roomId = '';
-            let isHost = false;
-            let currentTool = 'pen';
-            let currentColor = '#000000';
-            let currentLineWidth = 3;
-            let isDrawing = false;
-            let lastX = 0;
-            let lastY = 0;
+            // Set up permanent grid
+            const permanentGrid = document.getElementById('permanentGrid');
+            permanentGrid.style.width = whiteboard.width + 'px';
+            permanentGrid.style.height = whiteboard.height + 'px';
             
-            // Initialize the app
-            function init() {
-                setupEventListeners();
-                setupCanvas();
-                
-                // Show welcome modal immediately
-                welcomeModal.style.display = 'flex';
-                
-                // Set up permanent grid
-                permanentGrid.style.width = whiteboard.width + 'px';
-                permanentGrid.style.height = whiteboard.height + 'px';
-            }
-            
-            // Event listeners setup
-            function setupEventListeners() {
-                newSessionBtn.addEventListener('click', startNewSession);
-                copyCodeBtn.addEventListener('click', copySessionCode);
-                
-                // Canvas events
-                whiteboard.addEventListener('mousedown', startDrawing);
-                whiteboard.addEventListener('mousemove', draw);
-                whiteboard.addEventListener('mouseup', stopDrawing);
-                whiteboard.addEventListener('mouseout', stopDrawing);
-                
-                // Window resize
-                window.addEventListener('resize', handleResize);
-            }
-            
-            // Canvas setup
-            function setupCanvas() {
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, whiteboard.width, whiteboard.height);
-                ctx.strokeStyle = currentColor;
-                ctx.lineWidth = currentLineWidth;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-            }
-            
-            // New session
-            function startNewSession() {
-                welcomeModal.style.display = 'none';
-                appContainer.style.display = 'flex';
-                
-                // Generate room ID
-                roomId = generateRoomId();
-                codeDisplay.textContent = roomId;
-                isHost = true;
-                
-                // Set up the invite link
-                const url = new URL(window.location.href);
-                url.pathname = `/${roomId}`;
-                inviteLink.value = url.toString();
-                
-                showNotification('New session created. Share the code with others!');
-            }
-            
-            // Start drawing
-            function startDrawing(e) {
-                isDrawing = true;
-                const rect = whiteboard.getBoundingClientRect();
-                lastX = e.clientX - rect.left;
-                lastY = e.clientY - rect.top;
-                
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-            }
-            
-            // Draw on the canvas
-            function draw(e) {
-                if (!isDrawing) return;
-                
-                const rect = whiteboard.getBoundingClientRect();
-                const currentX = e.clientX - rect.left;
-                const currentY = e.clientY - rect.top;
-                
-                ctx.lineTo(currentX, currentY);
-                ctx.stroke();
-                
-                lastX = currentX;
-                lastY = currentY;
-            }
-            
-            // Stop drawing
-            function stopDrawing() {
-                isDrawing = false;
-            }
-            
-            // Handle window resize
-            function handleResize() {
-                whiteboard.width = window.innerWidth * 0.8;
-                whiteboard.height = window.innerHeight * 0.7;
-                permanentGrid.style.width = whiteboard.width + 'px';
-                permanentGrid.style.height = whiteboard.height + 'px';
-                
-                setupCanvas();
-            }
-            
-            // Copy session code
-            function copySessionCode() {
-                inviteLink.select();
-                document.execCommand('copy');
-                showNotification('Session link copied to clipboard!');
-            }
-            
-            // Show notification
-            function showNotification(message) {
-                notification.textContent = message;
-                notification.classList.add('show');
-                
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 3000);
-            }
-            
-            // Generate room ID
-            function generateRoomId() {
-                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                let result = '';
-                for (let i = 0; i < 6; i++) {
-                    result += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                return result;
-            }
-            
-            // Initialize the app
-            init();
+            // Fill canvas with white background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, whiteboard.width, whiteboard.height);
         });
+
+        // The rest of the JavaScript code can be loaded after the page is visible
+        // or split into smaller chunks that load as needed
     </script>
+    <script src="app.js" defer></script>
 </body>
 </html>
