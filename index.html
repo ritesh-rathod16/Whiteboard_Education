@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Whiteboard</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc3f7;
+            --dark-color: #0a192f;
+            --light-color: #f8f9fa;
+            --danger-color: #e63946;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: #333;
+        }
+
+        .app-container {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: white;
+            box-shadow: var(--box-shadow);
+            z-index: 100;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .whiteboard-container {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+            background-color: #f8f9fa;
+        }
+
+        .whiteboard {
+            background-color: white;
+            box-shadow: var(--box-shadow);
+            position: relative;
+        }
+
+        .permanent-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .sidebar {
+            width: 300px;
+            background-color: white;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Modal -->
+    <div class="modal" id="welcomeModal">
+        <div class="modal-content">
+            <h2>Welcome to Collaborative Whiteboard</h2>
+            <p>Start a new session or join an existing one to begin collaborating in real-time.</p>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="newSessionBtn">Start New Session</button>
+                <button class="btn btn-secondary" id="joinSessionBtn">Join Existing Session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container" id="appContainer">
+        <header class="header">
+            <div class="logo">CollabBoard</div>
+            <div class="session-info">
+                <div class="session-code" id="sessionCode">
+                    <span id="codeDisplay">XXXXXX</span>
+                    <button class="copy-btn" id="copyCodeBtn" title="Copy to clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                        </svg>
+                    </button>
+                </div>
+                <input type="text" id="inviteLink" style="position: absolute; left: -9999px;">
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="whiteboard-container">
+                <canvas id="whiteboard"></canvas>
+                <div class="permanent-grid" id="permanentGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Simplified version focusing on core whiteboard functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const welcomeModal = document.getElementById('welcomeModal');
+            const appContainer = document.getElementById('appContainer');
+            const whiteboard = document.getElementById('whiteboard');
+            const permanentGrid = document.getElementById('permanentGrid');
+            const notification = document.getElementById('notification');
+            const newSessionBtn = document.getElementById('newSessionBtn');
+            const copyCodeBtn = document.getElementById('copyCodeBtn');
+            const codeDisplay = document.getElementById('codeDisplay');
+            const inviteLink = document.getElementById('inviteLink');
+
+            // Canvas setup
+            const ctx = whiteboard.getContext('2d');
+            whiteboard.width = window.innerWidth * 0.8;
+            whiteboard.height = window.innerHeight * 0.7;
+            
+            // App state
+            let roomId = '';
+            let isHost = false;
+            let currentTool = 'pen';
+            let currentColor = '#000000';
+            let currentLineWidth = 3;
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            
+            // Initialize the app
+            function init() {
+                setupEventListeners();
+                setupCanvas();
+                
+                // Show welcome modal immediately
+                welcomeModal.style.display = 'flex';
+                
+                // Set up permanent grid
+                permanentGrid.style.width = whiteboard.width + 'px';
+                permanentGrid.style.height = whiteboard.height + 'px';
+            }
+            
+            // Event listeners setup
+            function setupEventListeners() {
+                newSessionBtn.addEventListener('click', startNewSession);
+                copyCodeBtn.addEventListener('click', copySessionCode);
+                
+                // Canvas events
+                whiteboard.addEventListener('mousedown', startDrawing);
+                whiteboard.addEventListener('mousemove', draw);
+                whiteboard.addEventListener('mouseup', stopDrawing);
+                whiteboard.addEventListener('mouseout', stopDrawing);
+                
+                // Window resize
+                window.addEventListener('resize', handleResize);
+            }
+            
+            // Canvas setup
+            function setupCanvas() {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, whiteboard.width, whiteboard.height);
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = currentLineWidth;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+            }
+            
+            // New session
+            function startNewSession() {
+                welcomeModal.style.display = 'none';
+                appContainer.style.display = 'flex';
+                
+                // Generate room ID
+                roomId = generateRoomId();
+                codeDisplay.textContent = roomId;
+                isHost = true;
+                
+                // Set up the invite link
+                const url = new URL(window.location.href);
+                url.pathname = `/${roomId}`;
+                inviteLink.value = url.toString();
+                
+                showNotification('New session created. Share the code with others!');
+            }
+            
+            // Start drawing
+            function startDrawing(e) {
+                isDrawing = true;
+                const rect = whiteboard.getBoundingClientRect();
+                lastX = e.clientX - rect.left;
+                lastY = e.clientY - rect.top;
+                
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+            }
+            
+            // Draw on the canvas
+            function draw(e) {
+                if (!isDrawing) return;
+                
+                const rect = whiteboard.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+                
+                ctx.lineTo(currentX, currentY);
+                ctx.stroke();
+                
+                lastX = currentX;
+                lastY = currentY;
+            }
+            
+            // Stop drawing
+            function stopDrawing() {
+                isDrawing = false;
+            }
+            
+            // Handle window resize
+            function handleResize() {
+                whiteboard.width = window.innerWidth * 0.8;
+                whiteboard.height = window.innerHeight * 0.7;
+                permanentGrid.style.width = whiteboard.width + 'px';
+                permanentGrid.style.height = whiteboard.height + 'px';
+                
+                setupCanvas();
+            }
+            
+            // Copy session code
+            function copySessionCode() {
+                inviteLink.select();
+                document.execCommand('copy');
+                showNotification('Session link copied to clipboard!');
+            }
+            
+            // Show notification
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Generate room ID
+            function generateRoomId() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let result = '';
+                for (let i = 0; i < 6; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
+            
+            // Initialize the app
+            init();
+        });
+    </script>
+</body>
+</html>
