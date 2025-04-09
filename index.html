@@ -80,7 +80,15 @@
 
         .logo {
             height: 36px;
-            animation: pulse 2s infinite;
+            animation: pulse 2s infinite, slideInFromLeft 1s ease-out;
+        }
+
+        .app-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: 1px;
+            animation: fadeIn 2s ease-in, colorChange 5s infinite alternate;
         }
 
         @keyframes pulse {
@@ -89,11 +97,20 @@
             100% { transform: scale(1); }
         }
 
-        .app-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            letter-spacing: 1px;
+        @keyframes slideInFromLeft {
+            0% { transform: translateX(-50px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes colorChange {
+            0% { color: var(--primary-color); }
+            50% { color: #6a4bff; }
+            100% { color: #4a6bff; }
         }
 
         .user-count {
@@ -322,7 +339,8 @@
 
         /* Right Panel */
         .right-panel {
-            width: 300px;
+            width: 30%;
+            min-width: 300px;
             background-color: var(--panel-bg);
             display: flex;
             flex-direction: column;
@@ -985,19 +1003,6 @@
             .right-panel.active {
                 transform: translateX(0);
             }
-
-            .video-container {
-                position: absolute;
-                top: 0;
-                right: 0;
-                height: 100%;
-                transform: translateX(100%);
-                width: 300px;
-            }
-
-            .video-container.active {
-                transform: translateX(0);
-            }
         }
 
         @media (max-width: 768px) {
@@ -1050,33 +1055,6 @@
 
         .slide-in {
             animation: slideIn 0.3s ease forwards;
-        }
-
-        /* Floating action buttons */
-        .fab {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--box-shadow);
-            cursor: pointer;
-            z-index: 90;
-            transition: var(--transition);
-        }
-
-        .fab:hover {
-            transform: scale(1.1);
-        }
-
-        .fab i {
-            font-size: 1.2rem;
         }
 
         /* Text tool popup */
@@ -1187,6 +1165,79 @@
             animation: floatUp 1.5s forwards;
             pointer-events: none;
             z-index: 1000;
+        }
+
+        /* Settings categories */
+        .settings-category {
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+
+        .settings-category-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .setting-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
         }
     </style>
 </head>
@@ -1317,22 +1368,18 @@
 
         <!-- Right Panel - Initially hidden -->
         <div class="right-panel" id="rightPanel">
+            <div class="panel-tabs">
+                <div class="panel-tab active" data-tab="users"><i class="fas fa-users"></i></div>
+                <div class="panel-tab" data-tab="chat"><i class="fas fa-comment"></i></div>
+                <div class="panel-tab" data-tab="video"><i class="fas fa-video"></i></div>
+                <div class="panel-tab" data-tab="slides"><i class="fas fa-images"></i></div>
+            </div>
             <div class="panel-content">
                 <!-- Users Tab -->
                 <div class="tab-content active" id="usersTab">
                     <div class="user-list" id="userList">
                         <!-- Users will be added here dynamically -->
                     </div>
-                </div>
-
-                <!-- Slides Tab -->
-                <div class="tab-content" id="slidesTab">
-                    <div class="slides-container" id="slidesContainer">
-                        <!-- Slide thumbnails will be added here dynamically -->
-                    </div>
-                    <button class="add-slide-btn" id="addSlideBtn">
-                        <i class="fas fa-plus"></i> Add Slide
-                    </button>
                 </div>
 
                 <!-- Chat Tab -->
@@ -1347,34 +1394,46 @@
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Video Chat Container - Initially hidden -->
-        <div class="video-container" id="videoContainer">
-            <div class="video-main">
-                <video id="localVideo" autoplay muted></video>
-                <div class="video-pinned" id="pinnedVideo"></div>
-            </div>
-            <div class="video-grid" id="videoGrid">
-                <!-- Remote videos will be added here dynamically -->
-            </div>
-            <div class="video-controls">
-                <button class="video-control-btn active" id="toggleVideoBtn">
-                    <i class="fas fa-video"></i>
-                </button>
-                <button class="video-control-btn active" id="toggleMicBtn">
-                    <i class="fas fa-microphone"></i>
-                </button>
-                <button class="video-control-btn" id="screenShareBtn">
-                    <i class="fas fa-desktop"></i>
-                </button>
-                <button class="video-control-btn" id="pinVideoBtn">
-                    <i class="fas fa-thumbtack"></i>
-                </button>
-                <button class="video-control-btn danger" id="leaveVideoBtn">
-                    <i class="fas fa-phone-slash"></i>
-                </button>
+                <!-- Video Tab -->
+                <div class="tab-content" id="videoTab">
+                    <div class="video-container">
+                        <div class="video-main">
+                            <video id="localVideo" autoplay muted></video>
+                            <div class="video-pinned" id="pinnedVideo"></div>
+                        </div>
+                        <div class="video-grid" id="videoGrid">
+                            <!-- Remote videos will be added here dynamically -->
+                        </div>
+                        <div class="video-controls">
+                            <button class="video-control-btn active" id="toggleVideoBtn">
+                                <i class="fas fa-video"></i>
+                            </button>
+                            <button class="video-control-btn active" id="toggleMicBtn">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="video-control-btn" id="screenShareBtn">
+                                <i class="fas fa-desktop"></i>
+                            </button>
+                            <button class="video-control-btn" id="pinVideoBtn">
+                                <i class="fas fa-thumbtack"></i>
+                            </button>
+                            <button class="video-control-btn danger" id="leaveVideoBtn">
+                                <i class="fas fa-phone-slash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slides Tab -->
+                <div class="tab-content" id="slidesTab">
+                    <div class="slides-container" id="slidesContainer">
+                        <!-- Slide thumbnails will be added here dynamically -->
+                    </div>
+                    <button class="add-slide-btn" id="addSlideBtn">
+                        <i class="fas fa-plus"></i> Add Slide
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1382,59 +1441,37 @@
     <!-- Bottom Controls -->
     <div class="bottom-controls">
         <div class="meeting-controls">
-            <button class="control-btn" id="toggleToolbarBtn">
-                <i class="fas fa-pencil-alt"></i>
+            <button class="control-btn" id="toggleMicBtnBottom">
+                <i class="fas fa-microphone"></i>
             </button>
-            <button class="control-btn" id="togglePanelBtn">
-                <i class="fas fa-users"></i>
-            </button>
-            <button class="control-btn" id="toggleVideoPanelBtn">
+            <button class="control-btn" id="toggleVideoBtnBottom">
                 <i class="fas fa-video"></i>
             </button>
-        </div>
-        <div class="meeting-controls">
             <button class="control-btn" id="raiseHandBtn">
                 <i class="fas fa-hand-paper"></i>
             </button>
             <button class="control-btn" id="reactionBtn">
                 <i class="fas fa-smile"></i>
             </button>
+            <button class="control-btn" id="showParticipantsBtn">
+                <i class="fas fa-users"></i>
+            </button>
             <div class="more-options">
                 <button class="control-btn" id="moreOptionsBtn">
                     <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="more-menu" id="moreMenu">
-                    <div class="menu-item" id="showUsersTab">
-                        <i class="fas fa-users"></i>
-                        <span>Users</span>
-                    </div>
-                    <div class="menu-item" id="showSlidesTab">
-                        <i class="fas fa-images"></i>
-                        <span>Slides</span>
-                    </div>
-                    <div class="menu-item" id="showChatTab">
+                    <div class="menu-item" id="showChatTabBtn">
                         <i class="fas fa-comment"></i>
                         <span>Chat</span>
-                    </div>
-                    <div class="menu-item" id="darkModeToggle">
-                        <i class="fas fa-moon"></i>
-                        <span>Dark Mode</span>
-                    </div>
-                    <div class="menu-item" id="inviteMenuItem">
-                        <i class="fas fa-user-plus"></i>
-                        <span>Invite People</span>
                     </div>
                     <div class="menu-item" id="settingsMenuItem">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </div>
-                    <div class="menu-item" id="fullscreenMenuItem">
-                        <i class="fas fa-expand"></i>
-                        <span>Fullscreen</span>
-                    </div>
-                    <div class="menu-item" id="helpMenuItem">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Help</span>
+                    <div class="menu-item" id="darkModeToggle">
+                        <i class="fas fa-moon"></i>
+                        <span>Dark Mode</span>
                     </div>
                     <div class="menu-item danger" id="leaveMenuItem">
                         <i class="fas fa-sign-out-alt"></i>
@@ -1443,165 +1480,9 @@
                 </div>
             </div>
         </div>
-        <div class="meeting-controls">
-            <button class="control-btn primary" id="startMeetingBtn">
-                <i class="fas fa-video"></i> Start
-            </button>
-        </div>
-    </div>
-
-    <!-- Floating Action Buttons -->
-    <div class="fab" id="toggleVideoFab" title="Toggle Video Panel">
-        <i class="fas fa-video"></i>
     </div>
 
     <!-- Modals -->
-    <div class="modal" id="inviteModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Invite People</h3>
-                <button class="modal-close" id="closeInviteModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Meeting Link</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" class="form-control" id="meetingLink" readonly>
-                        <button class="btn btn-primary" id="copyLinkBtn">Copy</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Meeting ID</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" class="form-control" id="meetingId" readonly>
-                        <button class="btn btn-primary" id="copyIdBtn">Copy</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Invite via Email</label>
-                    <input type="email" class="form-control" id="inviteEmail" placeholder="Enter email addresses">
-                    <button class="btn btn-primary" style="margin-top: 8px; width: 100%;">Send Invitation</button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelInviteBtn">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="saveModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Save Whiteboard</h3>
-                <button class="modal-close" id="closeSaveModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">File Name</label>
-                    <input type="text" class="form-control" id="fileName" placeholder="Enter file name">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Save As</label>
-                    <select class="form-control" id="saveFormat">
-                        <option value="png">PNG Image</option>
-                        <option value="jpg">JPEG Image</option>
-                        <option value="pdf">PDF Document</option>
-                        <option value="json">SigmaBoard File (.sboard)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Save To</label>
-                    <select class="form-control" id="saveLocation">
-                        <option value="local">Local Storage</option>
-                        <option value="cloud">Cloud Storage</option>
-                        <option value="device">Device</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelSaveBtn">Cancel</button>
-                <button class="btn btn-primary" id="confirmSaveBtn">Save</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="loadModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Load Whiteboard</h3>
-                <button class="modal-close" id="closeLoadModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Load From</label>
-                    <select class="form-control" id="loadSource">
-                        <option value="local">Local Storage</option>
-                        <option value="cloud">Cloud Storage</option>
-                        <option value="device">Device</option>
-                    </select>
-                </div>
-                <div class="form-group" id="localFilesGroup">
-                    <label class="form-label">Saved Files</label>
-                    <div class="saved-files-list" id="savedFilesList" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--secondary-color); border-radius: var(--border-radius);">
-                        <!-- Saved files will be listed here -->
-                    </div>
-                </div>
-                <div class="form-group" id="deviceFileGroup" style="display: none;">
-                    <label class="form-label">Select File</label>
-                    <input type="file" class="form-control" id="fileInput" accept=".sboard,.png,.jpg,.jpeg,.pdf">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelLoadBtn">Cancel</button>
-                <button class="btn btn-primary" id="confirmLoadBtn">Load</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="exportModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Export Whiteboard</h3>
-                <button class="modal-close" id="closeExportModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Export As</label>
-                    <select class="form-control" id="exportFormat">
-                        <option value="png">PNG Image</option>
-                        <option value="jpg">JPEG Image</option>
-                        <option value="pdf">PDF Document</option>
-                        <option value="svg">SVG Vector</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">File Name</label>
-                    <input type="text" class="form-control" id="exportFileName" placeholder="Enter file name">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Quality</label>
-                    <input type="range" class="slider" id="exportQuality" min="1" max="100" value="90">
-                    <span id="qualityValue">90%</span>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Pages</label>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <input type="checkbox" id="exportCurrentPage" checked>
-                        <label for="exportCurrentPage">Current Page Only</label>
-                    </div>
-                    <div style="display: flex; gap: 8px; align-items: center; margin-top: 8px;">
-                        <input type="checkbox" id="exportAllPages">
-                        <label for="exportAllPages">All Pages</label>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelExportBtn">Cancel</button>
-                <button class="btn btn-primary" id="confirmExportBtn">Export</button>
-            </div>
-        </div>
-    </div>
-
     <div class="modal" id="settingsModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1609,22 +1490,213 @@
                 <button class="modal-close" id="closeSettingsModal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Canvas Background</label>
-                    <input type="color" class="form-control" id="canvasBgColor" value="#ffffff">
+                <div class="settings-category">
+                    <div class="settings-category-title">
+                        <i class="fas fa-lock"></i> Security & Privacy Settings
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-door-open"></i> Enable waiting room
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="waitingRoomToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-key"></i> Require meeting passcode
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="passcodeToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-user-clock"></i> Allow participants to join before host
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="joinBeforeHostToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-desktop"></i> Allow participant screen sharing
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="screenShareToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-microphone-slash"></i> Mute participants on entry
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="muteOnEntryToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-user-plus"></i> Allow removed participants to rejoin
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="allowRejoinToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-lock"></i> Lock meeting
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="lockMeetingToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Default Stroke Color</label>
-                    <input type="color" class="form-control" id="defaultStrokeColor" value="#000000">
+
+                <div class="settings-category">
+                    <div class="settings-category-title">
+                        <i class="fas fa-video"></i> Video Settings
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-hd"></i> HD video
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="hdVideoToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-magic"></i> Touch up appearance
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="touchUpToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-mirror"></i> Mirror my video
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="mirrorVideoToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-eye"></i> Always show video preview
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="videoPreviewToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Default Stroke Width</label>
-                    <input type="range" class="slider" id="defaultStrokeWidth" min="1" max="50" value="3">
-                    <span id="strokeWidthValue">3px</span>
+
+                <div class="settings-category">
+                    <div class="settings-category-title">
+                        <i class="fas fa-microphone"></i> Audio Settings
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-headphones"></i> Suppress background noise
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="noiseSuppressionToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-music"></i> Original sound for musicians
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="originalSoundToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-plug"></i> Automatically join audio by computer
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoJoinAudioToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Auto-save Interval (minutes)</label>
-                    <input type="number" class="form-control" id="autoSaveInterval" min="1" max="60" value="5">
+
+                <div class="settings-category">
+                    <div class="settings-category-title">
+                        <i class="fas fa-users"></i> Meeting Settings
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-redo"></i> Recurring meetings
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="recurringMeetingsToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-calendar-alt"></i> Automatically record meeting
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoRecordToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-comments"></i> In-meeting chat
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="chatToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <i class="fas fa-hands-helping"></i> Reactions and nonverbal feedback
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="reactionsToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-category">
+                    <div class="settings-category-title">
+                        <i class="fas fa-paint-brush"></i> Whiteboard Settings
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Canvas Background</label>
+                        <input type="color" class="form-control" id="canvasBgColor" value="#ffffff">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Default Stroke Color</label>
+                        <input type="color" class="form-control" id="defaultStrokeColor" value="#000000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Default Stroke Width</label>
+                        <input type="range" class="slider" id="defaultStrokeWidth" min="1" max="50" value="3">
+                        <span id="strokeWidthValue">3px</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Auto-save Interval (minutes)</label>
+                        <input type="number" class="form-control" id="autoSaveInterval" min="1" max="60" value="5">
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1634,6 +1706,7 @@
         </div>
     </div>
 
+    <!-- Reaction Modal -->
     <div class="modal" id="reactionModal">
         <div class="modal-content" style="width: 300px;">
             <div class="modal-header">
@@ -1714,23 +1787,17 @@
             const screenShareBtn = document.getElementById('screenShareBtn');
             const pinVideoBtn = document.getElementById('pinVideoBtn');
             const leaveVideoBtn = document.getElementById('leaveVideoBtn');
-            const toggleToolbarBtn = document.getElementById('toggleToolbarBtn');
-            const togglePanelBtn = document.getElementById('togglePanelBtn');
-            const toggleVideoPanelBtn = document.getElementById('toggleVideoPanelBtn');
+            const toggleMicBtnBottom = document.getElementById('toggleMicBtnBottom');
+            const toggleVideoBtnBottom = document.getElementById('toggleVideoBtnBottom');
             const raiseHandBtn = document.getElementById('raiseHandBtn');
             const reactionBtn = document.getElementById('reactionBtn');
+            const showParticipantsBtn = document.getElementById('showParticipantsBtn');
             const moreOptionsBtn = document.getElementById('moreOptionsBtn');
             const moreMenu = document.getElementById('moreMenu');
-            const showUsersTab = document.getElementById('showUsersTab');
-            const showSlidesTab = document.getElementById('showSlidesTab');
-            const showChatTab = document.getElementById('showChatTab');
+            const showChatTabBtn = document.getElementById('showChatTabBtn');
             const darkModeToggle = document.getElementById('darkModeToggle');
-            const inviteMenuItem = document.getElementById('inviteMenuItem');
             const settingsMenuItem = document.getElementById('settingsMenuItem');
-            const fullscreenMenuItem = document.getElementById('fullscreenMenuItem');
-            const helpMenuItem = document.getElementById('helpMenuItem');
             const leaveMenuItem = document.getElementById('leaveMenuItem');
-            const toggleVideoFab = document.getElementById('toggleVideoFab');
             const imageInput = document.getElementById('imageInput');
             const fileLoadInput = document.getElementById('fileLoadInput');
             const textToolPopup = document.getElementById('textToolPopup');
@@ -1749,40 +1816,7 @@
             const videoGrid = document.getElementById('videoGrid');
             const pinnedVideo = document.getElementById('pinnedVideo');
             const rightPanel = document.getElementById('rightPanel');
-            const videoContainer = document.getElementById('videoContainer');
-            const inviteModal = document.getElementById('inviteModal');
-            const closeInviteModal = document.getElementById('closeInviteModal');
-            const meetingLink = document.getElementById('meetingLink');
-            const meetingId = document.getElementById('meetingId');
-            const copyLinkBtn = document.getElementById('copyLinkBtn');
-            const copyIdBtn = document.getElementById('copyIdBtn');
-            const cancelInviteBtn = document.getElementById('cancelInviteBtn');
-            const saveModal = document.getElementById('saveModal');
-            const closeSaveModal = document.getElementById('closeSaveModal');
-            const fileName = document.getElementById('fileName');
-            const saveFormat = document.getElementById('saveFormat');
-            const saveLocation = document.getElementById('saveLocation');
-            const cancelSaveBtn = document.getElementById('cancelSaveBtn');
-            const confirmSaveBtn = document.getElementById('confirmSaveBtn');
-            const loadModal = document.getElementById('loadModal');
-            const closeLoadModal = document.getElementById('closeLoadModal');
-            const loadSource = document.getElementById('loadSource');
-            const localFilesGroup = document.getElementById('localFilesGroup');
-            const deviceFileGroup = document.getElementById('deviceFileGroup');
-            const savedFilesList = document.getElementById('savedFilesList');
-            const fileInput = document.getElementById('fileInput');
-            const cancelLoadBtn = document.getElementById('cancelLoadBtn');
-            const confirmLoadBtn = document.getElementById('confirmLoadBtn');
-            const exportModal = document.getElementById('exportModal');
-            const closeExportModal = document.getElementById('closeExportModal');
-            const exportFormat = document.getElementById('exportFormat');
-            const exportFileName = document.getElementById('exportFileName');
-            const exportQuality = document.getElementById('exportQuality');
-            const qualityValue = document.getElementById('qualityValue');
-            const exportCurrentPage = document.getElementById('exportCurrentPage');
-            const exportAllPages = document.getElementById('exportAllPages');
-            const cancelExportBtn = document.getElementById('cancelExportBtn');
-            const confirmExportBtn = document.getElementById('confirmExportBtn');
+            const videoTab = document.getElementById('videoTab');
             const settingsModal = document.getElementById('settingsModal');
             const closeSettingsModal = document.getElementById('closeSettingsModal');
             const canvasBgColor = document.getElementById('canvasBgColor');
@@ -1795,7 +1829,7 @@
             const reactionModal = document.getElementById('reactionModal');
             const closeReactionModal = document.getElementById('closeReactionModal');
             const reactionBtns = document.querySelectorAll('.reaction-btn');
-            const startMeetingBtn = document.getElementById('startMeetingBtn');
+            const panelTabs = document.querySelectorAll('.panel-tab');
 
             // Application State
             let isDrawing = false;
@@ -1892,8 +1926,6 @@
                 highlighterTool.addEventListener('click', () => setTool('highlighter'));
                 pointerTool.addEventListener('click', () => setTool('pointer'));
                 laserTool.addEventListener('click', () => setTool('laser'));
-                saveTool.addEventListener('click', openSaveModal);
-                loadTool.addEventListener('click', openLoadModal);
                 
                 // Color and brush size
                 colorPicker.addEventListener('input', (e) => {
@@ -1931,7 +1963,7 @@
                 nextSlide.addEventListener('click', goToNextSlide);
                 addSlideBtn.addEventListener('click', createNewSlide);
                 
-                // Save/load/export
+                // Export/record
                 exportBtn.addEventListener('click', openExportModal);
                 recordBtn.addEventListener('click', toggleRecording);
                 
@@ -1941,98 +1973,43 @@
                 screenShareBtn.addEventListener('click', toggleScreenShare);
                 pinVideoBtn.addEventListener('click', togglePinVideo);
                 leaveVideoBtn.addEventListener('click', leaveVideo);
-                startMeetingBtn.addEventListener('click', toggleMeeting);
                 
                 // Bottom controls
-                toggleToolbarBtn.addEventListener('click', toggleToolbar);
-                togglePanelBtn.addEventListener('click', togglePanel);
-                toggleVideoPanelBtn.addEventListener('click', toggleVideoPanel);
+                toggleMicBtnBottom.addEventListener('click', toggleMic);
+                toggleVideoBtnBottom.addEventListener('click', toggleVideo);
                 raiseHandBtn.addEventListener('click', raiseHand);
                 reactionBtn.addEventListener('click', openReactionModal);
+                showParticipantsBtn.addEventListener('click', () => {
+                    showPanelTab('users');
+                    rightPanel.classList.add('active');
+                });
                 moreOptionsBtn.addEventListener('click', toggleMoreMenu);
                 
                 // More menu items
-                showUsersTab.addEventListener('click', () => {
-                    showPanelTab('users');
-                    moreMenu.classList.remove('active');
-                });
-                showSlidesTab.addEventListener('click', () => {
-                    showPanelTab('slides');
-                    moreMenu.classList.remove('active');
-                });
-                showChatTab.addEventListener('click', () => {
+                showChatTabBtn.addEventListener('click', () => {
                     showPanelTab('chat');
+                    rightPanel.classList.add('active');
                     moreMenu.classList.remove('active');
                 });
-                darkModeToggle.addEventListener('click', toggleDarkMode);
-                inviteMenuItem.addEventListener('click', openInviteModal);
                 settingsMenuItem.addEventListener('click', openSettingsModal);
-                fullscreenMenuItem.addEventListener('click', toggleFullscreen);
-                helpMenuItem.addEventListener('click', showHelp);
+                darkModeToggle.addEventListener('click', toggleDarkMode);
                 leaveMenuItem.addEventListener('click', leaveMeeting);
                 
+                // Panel tabs
+                panelTabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabId = tab.dataset.tab;
+                        showPanelTab(tabId);
+                    });
+                });
+                
                 // Close modals
-                closeInviteModal.addEventListener('click', closeInviteModalFunc);
-                closeSaveModal.addEventListener('click', closeSaveModalFunc);
-                closeLoadModal.addEventListener('click', closeLoadModalFunc);
-                closeExportModal.addEventListener('click', closeExportModalFunc);
                 closeSettingsModal.addEventListener('click', closeSettingsModalFunc);
                 closeReactionModal.addEventListener('click', closeReactionModalFunc);
                 
-                // Modal buttons
-                copyLinkBtn.addEventListener('click', copyMeetingLink);
-                copyIdBtn.addEventListener('click', copyMeetingId);
-                cancelInviteBtn.addEventListener('click', closeInviteModalFunc);
-                confirmSaveBtn.addEventListener('click', saveWhiteboard);
-                cancelSaveBtn.addEventListener('click', closeSaveModalFunc);
-                confirmLoadBtn.addEventListener('click', loadWhiteboard);
-                cancelLoadBtn.addEventListener('click', closeLoadModalFunc);
-                confirmExportBtn.addEventListener('click', exportWhiteboard);
-                cancelExportBtn.addEventListener('click', closeExportModalFunc);
-                saveSettingsBtn.addEventListener('click', saveSettings);
+                // Settings modal buttons
                 cancelSettingsBtn.addEventListener('click', closeSettingsModalFunc);
-                
-                // Load source change
-                loadSource.addEventListener('change', updateLoadSourceUI);
-                
-                // Export quality
-                exportQuality.addEventListener('input', (e) => {
-                    qualityValue.textContent = `${e.target.value}%`;
-                });
-                
-                // Default stroke width
-                defaultStrokeWidth.addEventListener('input', (e) => {
-                    strokeWidthValue.textContent = `${e.target.value}px`;
-                });
-                
-                // Export page options
-                exportCurrentPage.addEventListener('change', (e) => {
-                    if (e.target.checked) {
-                        exportAllPages.checked = false;
-                    }
-                });
-                
-                exportAllPages.addEventListener('change', (e) => {
-                    if (e.target.checked) {
-                        exportCurrentPage.checked = false;
-                    }
-                });
-                
-                // Text tool
-                applyTextBtn.addEventListener('click', applyText);
-                textInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        applyText();
-                    }
-                });
-                
-                // Shape options
-                document.querySelectorAll('.shape-option-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        setTool(e.target.dataset.shape);
-                        shapeOptions.style.display = 'none';
-                    });
-                });
+                saveSettingsBtn.addEventListener('click', saveSettings);
                 
                 // Reaction buttons
                 reactionBtns.forEach(btn => {
@@ -2049,9 +2026,6 @@
                         sendChatMessage();
                     }
                 });
-                
-                // Toggle video panel FAB
-                toggleVideoFab.addEventListener('click', toggleVideoPanel);
                 
                 // Keyboard shortcuts
                 document.addEventListener('keydown', handleKeyboardShortcuts);
@@ -2628,291 +2602,6 @@
                 }
             }
 
-            function openSaveModal() {
-                saveModal.classList.add('active');
-                fileName.value = `Whiteboard_${new Date().toISOString().slice(0, 10)}`;
-            }
-
-            function closeSaveModalFunc() {
-                saveModal.classList.remove('active');
-            }
-
-            function saveWhiteboard() {
-                const format = saveFormat.value;
-                const location = saveLocation.value;
-                const name = fileName.value || `Whiteboard_${new Date().toISOString().slice(0, 10)}`;
-                
-                switch (location) {
-                    case 'local':
-                        saveToLocalStorage(name, format);
-                        break;
-                    case 'cloud':
-                        saveToCloud(name, format);
-                        break;
-                    case 'device':
-                        saveToDevice(name, format);
-                        break;
-                }
-                
-                closeSaveModalFunc();
-            }
-
-            function saveToLocalStorage(name, format) {
-                const currentSlide = slides[currentSlideIndex];
-                const data = {
-                    name,
-                    format,
-                    slides,
-                    currentSlideIndex,
-                    createdAt: new Date().toISOString()
-                };
-                
-                // Get existing saves or initialize empty array
-                const existingSaves = JSON.parse(localStorage.getItem('whiteboardSaves') || '[]');
-                
-                // Add new save
-                existingSaves.push(data);
-                
-                // Save back to localStorage
-                localStorage.setItem('whiteboardSaves', JSON.stringify(existingSaves));
-                
-                showNotification('Whiteboard saved to local storage', 'success');
-            }
-
-            function saveToCloud(name, format) {
-                // Simulate cloud save
-                setTimeout(() => {
-                    showNotification('Whiteboard saved to cloud', 'success');
-                }, 1000);
-            }
-
-            function saveToDevice(name, format) {
-                let dataUrl, mimeType, extension;
-                
-                switch (format) {
-                    case 'png':
-                        dataUrl = canvas.toDataURL('image/png');
-                        mimeType = 'image/png';
-                        extension = 'png';
-                        break;
-                    case 'jpg':
-                        dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-                        mimeType = 'image/jpeg';
-                        extension = 'jpg';
-                        break;
-                    case 'pdf':
-                        // TODO: Implement PDF export
-                        showNotification('PDF export not implemented yet', 'warning');
-                        return;
-                    case 'json':
-                        const data = {
-                            name,
-                            format,
-                            slides,
-                            currentSlideIndex,
-                            createdAt: new Date().toISOString()
-                        };
-                        dataUrl = `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(data))}`;
-                        mimeType = 'application/json';
-                        extension = 'sboard';
-                        break;
-                }
-                
-                const link = document.createElement('a');
-                link.download = `${name}.${extension}`;
-                link.href = dataUrl;
-                link.click();
-                
-                showNotification('Whiteboard saved to device', 'success');
-            }
-
-            function openLoadModal() {
-                loadModal.classList.add('active');
-                updateLoadSourceUI();
-            }
-
-            function closeLoadModalFunc() {
-                loadModal.classList.remove('active');
-            }
-
-            function updateLoadSourceUI() {
-                const source = loadSource.value;
-                
-                if (source === 'local') {
-                    localFilesGroup.style.display = 'block';
-                    deviceFileGroup.style.display = 'none';
-                    loadLocalFiles();
-                } else if (source === 'device') {
-                    localFilesGroup.style.display = 'none';
-                    deviceFileGroup.style.display = 'block';
-                } else {
-                    localFilesGroup.style.display = 'none';
-                    deviceFileGroup.style.display = 'none';
-                    // TODO: Load from cloud
-                }
-            }
-
-            function loadLocalFiles() {
-                const existingSaves = JSON.parse(localStorage.getItem('whiteboardSaves') || '[]');
-                savedFilesList.innerHTML = '';
-                
-                if (existingSaves.length === 0) {
-                    savedFilesList.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--text-color);">No saved files found</div>';
-                    return;
-                }
-                
-                existingSaves.forEach((save, index) => {
-                    const fileItem = document.createElement('div');
-                    fileItem.className = 'file-item';
-                    fileItem.style.padding = '8px';
-                    fileItem.style.borderBottom = '1px solid var(--secondary-color)';
-                    fileItem.style.cursor = 'pointer';
-                    fileItem.style.display = 'flex';
-                    fileItem.style.justifyContent = 'space-between';
-                    fileItem.style.alignItems = 'center';
-                    
-                    const fileInfo = document.createElement('div');
-                    fileInfo.innerHTML = `
-                        <div style="font-weight: 600;">${save.name}</div>
-                        <div style="font-size: 0.8rem; opacity: 0.7;">
-                            ${new Date(save.createdAt).toLocaleString()} • ${save.slides.length} slide(s)
-                        </div>
-                    `;
-                    
-                    const fileAction = document.createElement('div');
-                    fileAction.innerHTML = '<i class="fas fa-chevron-right"></i>';
-                    
-                    fileItem.appendChild(fileInfo);
-                    fileItem.appendChild(fileAction);
-                    
-                    fileItem.addEventListener('click', () => {
-                        confirmLoadBtn.dataset.saveIndex = index;
-                    });
-                    
-                    savedFilesList.appendChild(fileItem);
-                });
-            }
-
-            function loadWhiteboard() {
-                const source = loadSource.value;
-                
-                switch (source) {
-                    case 'local':
-                        const saveIndex = confirmLoadBtn.dataset.saveIndex;
-                        if (saveIndex === undefined) {
-                            showNotification('Please select a file to load', 'warning');
-                            return;
-                        }
-                        
-                        const existingSaves = JSON.parse(localStorage.getItem('whiteboardSaves') || '[]');
-                        if (saveIndex >= 0 && saveIndex < existingSaves.length) {
-                            const save = existingSaves[saveIndex];
-                            loadFromData(save);
-                        }
-                        break;
-                        
-                    case 'cloud':
-                        // TODO: Load from cloud
-                        showNotification('Cloud loading not implemented yet', 'warning');
-                        break;
-                        
-                    case 'device':
-                        if (fileInput.files.length > 0) {
-                            const file = fileInput.files[0];
-                            const reader = new FileReader();
-                            
-                            reader.onload = function(e) {
-                                try {
-                                    const data = JSON.parse(e.target.result);
-                                    loadFromData(data);
-                                } catch (err) {
-                                    showNotification('Invalid file format', 'danger');
-                                }
-                            };
-                            
-                            reader.readAsText(file);
-                        } else {
-                            showNotification('Please select a file to load', 'warning');
-                        }
-                        break;
-                }
-                
-                closeLoadModalFunc();
-            }
-
-            function loadFromData(data) {
-                if (!data.slides || !Array.isArray(data.slides)) {
-                    showNotification('Invalid whiteboard data', 'danger');
-                    return;
-                }
-                
-                slides = data.slides;
-                currentSlideIndex = data.currentSlideIndex || 0;
-                
-                // Clear existing thumbnails
-                slidesContainer.innerHTML = '';
-                
-                // Create thumbnails for each slide
-                slides.forEach(slide => {
-                    createSlideThumbnail(slide);
-                });
-                
-                // Add the "Add Slide" button back
-                slidesContainer.appendChild(addSlideBtn);
-                
-                // Redraw current slide
-                redrawCurrentSlide();
-                updateSlideCounter();
-                
-                showNotification('Whiteboard loaded successfully', 'success');
-            }
-
-            function openExportModal() {
-                exportModal.classList.add('active');
-                exportFileName.value = `Whiteboard_${new Date().toISOString().slice(0, 10)}`;
-            }
-
-            function closeExportModalFunc() {
-                exportModal.classList.remove('active');
-            }
-
-            function exportWhiteboard() {
-                const format = exportFormat.value;
-                const name = exportFileName.value || `Whiteboard_${new Date().toISOString().slice(0, 10)}`;
-                const quality = exportQuality.value / 100;
-                
-                let dataUrl, mimeType, extension;
-                
-                switch (format) {
-                    case 'png':
-                        dataUrl = canvas.toDataURL('image/png');
-                        mimeType = 'image/png';
-                        extension = 'png';
-                        break;
-                    case 'jpg':
-                        dataUrl = canvas.toDataURL('image/jpeg', quality);
-                        mimeType = 'image/jpeg';
-                        extension = 'jpg';
-                        break;
-                    case 'pdf':
-                        // TODO: Implement PDF export
-                        showNotification('PDF export not implemented yet', 'warning');
-                        return;
-                    case 'svg':
-                        // TODO: Implement SVG export
-                        showNotification('SVG export not implemented yet', 'warning');
-                        return;
-                }
-                
-                const link = document.createElement('a');
-                link.download = `${name}.${extension}`;
-                link.href = dataUrl;
-                link.click();
-                
-                showNotification(`Whiteboard exported as ${format.toUpperCase()}`, 'success');
-                closeExportModalFunc();
-            }
-
             function toggleRecording() {
                 if (!recording) {
                     startRecording();
@@ -2944,62 +2633,10 @@
                 }, 1000);
             }
 
-            function toggleMeeting() {
-                if (!isMeetingStarted) {
-                    startMeeting();
-                } else {
-                    stopMeeting();
-                }
-            }
-
-            function startMeeting() {
-                isMeetingStarted = true;
-                startMeetingBtn.innerHTML = '<i class="fas fa-phone-slash"></i> Stop';
-                startMeetingBtn.classList.add('danger');
-                
-                // Show video controls
-                toggleVideoPanelBtn.style.display = 'flex';
-                toggleVideoFab.style.display = 'flex';
-                
-                // Start video
-                initVideo();
-                
-                showNotification('Meeting started', 'success');
-            }
-
-            function stopMeeting() {
-                if (confirm('Are you sure you want to stop the meeting?')) {
-                    isMeetingStarted = false;
-                    startMeetingBtn.innerHTML = '<i class="fas fa-video"></i> Start';
-                    startMeetingBtn.classList.remove('danger');
-                    
-                    // Hide video controls
-                    toggleVideoPanelBtn.style.display = 'none';
-                    toggleVideoFab.style.display = 'none';
-                    videoContainer.classList.remove('active');
-                    
-                    // Stop video
-                    if (videoStream) {
-                        videoStream.getTracks().forEach(track => track.stop());
-                    }
-                    localVideo.srcObject = null;
-                    videoGrid.innerHTML = '';
-                    pinnedVideo.innerHTML = '';
-                    pinnedVideo.classList.remove('active');
-                    
-                    // Reset buttons
-                    toggleVideoBtn.classList.add('active');
-                    toggleMicBtn.classList.add('active');
-                    screenShareBtn.classList.remove('active');
-                    pinVideoBtn.classList.remove('active');
-                    
-                    showNotification('Meeting stopped', 'warning');
-                }
-            }
-
             function toggleVideo() {
                 const isActive = toggleVideoBtn.classList.contains('active');
                 toggleVideoBtn.classList.toggle('active', !isActive);
+                toggleVideoBtnBottom.classList.toggle('active', !isActive);
                 
                 if (isActive) {
                     // Stop video
@@ -3022,6 +2659,7 @@
             function toggleMic() {
                 const isActive = toggleMicBtn.classList.contains('active');
                 toggleMicBtn.classList.toggle('active', !isActive);
+                toggleMicBtnBottom.classList.toggle('active', !isActive);
                 
                 if (videoStream) {
                     videoStream.getAudioTracks().forEach(track => {
@@ -3092,29 +2730,22 @@
                 }
             }
 
-            function toggleToolbar() {
-                document.querySelector('.toolbar').classList.toggle('active');
-            }
-
-            function togglePanel() {
-                rightPanel.classList.toggle('active');
-            }
-
-            function toggleVideoPanel() {
-                videoContainer.classList.toggle('active');
-            }
-
             function showPanelTab(tabId) {
                 // Hide all tab contents
                 document.querySelectorAll('.tab-content').forEach(content => {
                     content.classList.remove('active');
                 });
                 
+                // Deactivate all tabs
+                document.querySelectorAll('.panel-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
                 // Show the selected tab
                 document.getElementById(`${tabId}Tab`).classList.add('active');
                 
-                // Show the panel if it's hidden
-                rightPanel.classList.add('active');
+                // Activate the selected tab
+                document.querySelector(`.panel-tab[data-tab="${tabId}"]`).classList.add('active');
             }
 
             function raiseHand() {
@@ -3174,29 +2805,6 @@
                 showNotification(`${isDarkMode ? 'Dark' : 'Light'} mode activated`, 'success');
             }
 
-            function openInviteModal() {
-                inviteModal.classList.add('active');
-                meetingLink.value = window.location.href;
-                meetingId.value = generateMeetingId();
-                moreMenu.classList.remove('active');
-            }
-
-            function closeInviteModalFunc() {
-                inviteModal.classList.remove('active');
-            }
-
-            function copyMeetingLink() {
-                meetingLink.select();
-                document.execCommand('copy');
-                showNotification('Meeting link copied to clipboard', 'success');
-            }
-
-            function copyMeetingId() {
-                meetingId.select();
-                document.execCommand('copy');
-                showNotification('Meeting ID copied to clipboard', 'success');
-            }
-
             function openSettingsModal() {
                 settingsModal.classList.add('active');
                 moreMenu.classList.remove('active');
@@ -3250,26 +2858,6 @@
                 }
             }
 
-            function toggleFullscreen() {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        showNotification(`Error attempting to enable fullscreen: ${err.message}`, 'danger');
-                    });
-                } else {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    }
-                }
-                
-                moreMenu.classList.remove('active');
-            }
-
-            function showHelp() {
-                showNotification('Help documentation will open in a new tab', 'info');
-                moreMenu.classList.remove('active');
-                // In a real app, this would open a help page
-            }
-
             function leaveMeeting() {
                 if (confirm('Are you sure you want to leave the meeting?')) {
                     // In a real app, we would clean up connections and resources
@@ -3302,6 +2890,8 @@
                     
                     toggleVideoBtn.classList.remove('active');
                     toggleMicBtn.classList.remove('active');
+                    toggleVideoBtnBottom.classList.remove('active');
+                    toggleMicBtnBottom.classList.remove('active');
                     
                     // Simulate remote users joining
                     simulateRemoteUsers();
@@ -3617,7 +3207,8 @@
             function startAutoSave() {
                 const interval = parseInt(autoSaveInterval.value) || 5;
                 autoSaveTimer = setInterval(() => {
-                    saveToLocalStorage(`AutoSave_${new Date().toISOString()}`, 'json');
+                    // In a real app, we would save the whiteboard state
+                    showNotification('Auto-saved your work', 'success');
                 }, interval * 60 * 1000);
             }
 
@@ -3772,10 +3363,6 @@
             // Utility functions
             function generateId() {
                 return Math.random().toString(36).substr(2, 9);
-            }
-
-            function generateMeetingId() {
-                return Math.random().toString(36).substr(2, 6).toUpperCase();
             }
 
             function getRandomColor() {
