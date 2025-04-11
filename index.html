@@ -3,485 +3,498 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhiteBoard Education | Advanced Collaborative Whiteboard</title>
+    <title>WhiteBoard Education - Collaborative Whiteboard</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #4a6bff;
-            --secondary-color: #f5f7ff;
-            --dark-color: #1a1a2e;
-            --light-color: #ffffff;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --info-color: #17a2b8;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --text-color: #333;
+            --white: #fff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
-            --toolbar-height: 70px;
-            --sidebar-width: 300px;
         }
-
+        
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        
         body {
-            background-color: #f0f2f5;
-            color: var(--dark-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-color);
+            color: var(--text-color);
             height: 100vh;
-            display: flex;
-            flex-direction: column;
             overflow: hidden;
         }
-
-        /* Loading Animation */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--light-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-
-        .loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .logo-animation {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        .logo-animation img {
-            width: 60px;
-            height: 60px;
-            margin-right: 15px;
-            animation: pulse 2s infinite;
-        }
-
-        .logo-animation h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(90deg, #4a6bff, #6a11cb);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: 1px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        /* Main Layout */
+        
         .container {
             display: flex;
-            flex: 1;
-            overflow: hidden;
+            flex-direction: column;
+            height: 100vh;
         }
-
-        /* Header */
+        
         .header {
-            background-color: var(--light-color);
+            background-color: var(--secondary-color);
+            color: var(--white);
             padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--box-shadow);
-            z-index: 10;
+            box-shadow: var(--shadow);
+            z-index: 100;
         }
-
-        .logo {
+        
+        .logo-container {
             display: flex;
             align-items: center;
+            gap: 10px;
         }
-
-        .logo img {
-            width: 40px;
+        
+        .logo-img {
             height: 40px;
-            margin-right: 10px;
+            width: auto;
         }
-
-        .logo h2 {
+        
+        .logo-text {
             font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
+            font-weight: bold;
+            background: linear-gradient(90deg, var(--primary-color), #9b59b6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
+        
         .user-count {
-            display: flex;
-            align-items: center;
-            background-color: var(--secondary-color);
-            padding: 5px 12px;
+            background-color: var(--primary-color);
+            padding: 5px 15px;
             border-radius: 20px;
             font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .user-count i {
-            margin-right: 5px;
-            color: var(--primary-color);
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: var(--border-radius);
-            background-color: var(--primary-color);
-            color: white;
-            cursor: pointer;
-            font-weight: 500;
-            transition: var(--transition);
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 5px;
         }
-
-        .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .btn-danger {
-            background-color: var(--danger-color);
-        }
-
-        .btn-success {
-            background-color: var(--success-color);
-        }
-
-        /* Main Content */
-        .main-content {
+        
+        .main {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
-
-        /* Whiteboard Area */
-        .whiteboard-container {
-            flex: 1;
+        
+        .toolbar {
+            width: 70px;
+            background-color: var(--dark-color);
+            padding: 15px 0;
             display: flex;
             flex-direction: column;
-            background-color: #f8f9fa;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Whiteboard Header with Mode Selection */
-        .whiteboard-header {
-            padding: 12px 20px;
-            background-color: var(--light-color);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 15px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
         }
-
-        .board-options {
-            display: flex;
-            gap: 10px;
-        }
-
-        .board-btn {
-            padding: 8px 16px;
-            border-radius: var(--border-radius);
-            border: none;
-            background-color: var(--secondary-color);
-            color: var(--dark-color);
-            font-size: 14px;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .board-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .board-btn i {
-            font-size: 16px;
-        }
-
-        /* Color Palette */
-        .color-palette {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .color-label {
-            font-size: 14px;
-            color: var(--dark-color);
-        }
-
-        .color-option {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: transform 0.2s;
-        }
-
-        .color-option:hover {
-            transform: scale(1.1);
-        }
-
-        .color-option.selected {
-            border-color: var(--dark-color);
-        }
-
-        /* Toolbar */
-        .toolbar {
-            background-color: var(--light-color);
-            padding: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            border-bottom: 1px solid #e9ecef;
-            z-index: 5;
-        }
-
-        .tool-group {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-            background-color: var(--secondary-color);
-            border-radius: var(--border-radius);
-        }
-
-        .tool-btn {
-            width: 36px;
-            height: 36px;
-            border: none;
-            border-radius: 6px;
-            background-color: transparent;
-            cursor: pointer;
+        
+        .tool {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            color: var(--white);
             transition: var(--transition);
+            position: relative;
         }
-
-        .tool-btn:hover, .tool-btn.active {
-            background-color: rgba(74, 107, 255, 0.1);
-            color: var(--primary-color);
+        
+        .tool:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
         }
-
-        .tool-btn i {
-            font-size: 1.1rem;
+        
+        .tool.active {
+            background-color: var(--primary-color);
+            box-shadow: 0 0 0 2px var(--white);
         }
-
+        
+        .tool-tip {
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            margin-left: 10px;
+            z-index: 100;
+        }
+        
+        .tool:hover .tool-tip {
+            opacity: 1;
+        }
+        
+        .color-picker-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .color-picker-label {
+            color: var(--white);
+            font-size: 0.7rem;
+            margin-bottom: 5px;
+        }
+        
         .color-picker {
-            width: 30px;
-            height: 30px;
-            border: none;
-            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--white);
+            border-radius: 8px;
             cursor: pointer;
             padding: 0;
-            overflow: hidden;
+            background: none;
+            transition: var(--transition);
         }
-
-        .color-picker::-webkit-color-swatch {
-            border: none;
-            border-radius: 50%;
+        
+        .color-picker:hover {
+            transform: scale(1.05);
         }
-
-        .line-width {
-            width: 60px;
-            padding: 5px;
-            border-radius: var(--border-radius);
-            border: 1px solid #dee2e6;
-        }
-
-        /* Whiteboard Area with Multiple Canvas Support */
-        .whiteboard-area {
+        
+        .whiteboard-container {
             flex: 1;
             position: relative;
             overflow: hidden;
+            background-color: var(--white);
+            background-image: 
+                linear-gradient(#e0e0e0 1px, transparent 1px),
+                linear-gradient(90deg, #e0e0e0 1px, transparent 1px);
+            background-size: 20px 20px;
         }
-
-        .canvas-container {
-            width: 100%;
-            height: 100%;
+        
+        #whiteboard {
             position: absolute;
             top: 0;
             left: 0;
-            display: none;
-        }
-
-        .canvas-container.active {
-            display: block;
-        }
-
-        canvas {
-            background-color: var(--light-color);
-            width: 100%;
-            height: 100%;
             cursor: crosshair;
-            touch-action: none;
         }
-
-        /* Right Panel - Simplified for Video Only */
+        
+        .cursor {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+            border: 2px solid var(--white);
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease;
+        }
+        
         .right-panel {
-            width: var(--sidebar-width);
-            background-color: var(--light-color);
-            border-left: 1px solid #e9ecef;
+            width: 300px;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
+            background-color: var(--white);
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: width 0.3s ease;
+            z-index: 10;
         }
-
-        .right-panel.collapsed {
-            transform: translateX(100%);
-            opacity: 0;
-            width: 0;
+        
+        .user-list-container {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
         }
-
-        .panel-header {
-            padding: 16px;
+        
+        .user-list-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        
+        .user-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .user-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .user-name {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+        
+        .media-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .media-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .media-btn {
+            padding: 10px 15px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .media-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .media-btn.off {
+            background-color: var(--accent-color);
+        }
+        
+        .video-container {
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            flex: 1;
+            position: relative;
+            min-height: 150px;
+        }
+        
+        #localVideo, #remoteVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            background-color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .video-placeholder i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        
+        .video-placeholder-text {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .footer {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 12px 20px;
+            font-size: 0.8rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border);
         }
-
-        .panel-title {
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--dark-color);
-        }
-
-        .panel-close {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--dark-color);
-            font-size: 18px;
-        }
-
-        .video-container {
-            flex: 1;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .video-preview {
-            background-color: #f8f9fa;
-            border-radius: var(--border-radius);
-            flex: 1;
+        
+        .footer-info {
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: #5f6368;
-            margin-bottom: 16px;
-            overflow: hidden;
+            gap: 10px;
         }
-
-        .video-controls {
+        
+        .board-actions {
             display: flex;
-            justify-content: center;
-            gap: 12px;
+            gap: 10px;
         }
-
-        .video-control-btn {
-            padding: 8px 16px;
-            border-radius: var(--border-radius);
+        
+        .board-btn {
+            padding: 5px 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
             border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background-color 0.2s;
+        }
+        
+        .board-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        #boardId {
+            font-family: monospace;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 3px 6px;
+            border-radius: 3px;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: var(--white);
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 1000;
+            display: none;
+            max-width: 80%;
+            text-align: center;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        
+        .toggle-panel {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
             background-color: var(--primary-color);
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
+            color: var(--white);
+            width: 24px;
+            height: 48px;
             display: flex;
             align-items: center;
-            gap: 6px;
-        }
-
-        /* Bottom Toolbar - Centered Icons */
-        .bottom-controls {
-            height: var(--toolbar-height);
-            background-color: var(--light-color);
-            border-top: 1px solid #e9ecef;
-            display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 0 20px;
-        }
-
-        .tools {
-            display: flex;
-            gap: 24px;
-        }
-
-        .tool {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            border-radius: 8px 0 0 8px;
             cursor: pointer;
-            padding: 8px 12px;
-            border-radius: var(--border-radius);
+            z-index: 20;
             transition: var(--transition);
         }
-
-        .tool:hover {
-            background-color: rgba(66, 133, 244, 0.1);
+        
+        .toggle-panel:hover {
+            width: 28px;
         }
-
-        .tool.active {
-            background-color: rgba(66, 133, 244, 0.2);
+        
+        .panel-collapsed .right-panel {
+            width: 0;
+            overflow: hidden;
         }
-
-        .tool i {
-            font-size: 20px;
-            color: var(--dark-color);
-            margin-bottom: 4px;
+        
+        .panel-collapsed .toggle-panel {
+            right: -24px;
         }
-
-        .tool span {
-            font-size: 12px;
-            color: var(--dark-color);
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .toolbar {
+                width: 60px;
+            }
+            
+            .right-panel {
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                background-color: var(--white);
+                z-index: 50;
+            }
+            
+            .panel-collapsed .right-panel {
+                width: 0;
+            }
         }
-
-        /* Notes Modal */
-        .modal-overlay {
+        
+        /* Drawing tools specific styles */
+        .line-width-control {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .line-width-label {
+            color: var(--white);
+            font-size: 0.7rem;
+        }
+        
+        .line-width-slider {
+            width: 80%;
+            cursor: pointer;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--light-color);
+            outline: none;
+        }
+        
+        .line-width-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .line-width-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Loading animation */
+        .loading {
             position: fixed;
             top: 0;
             left: 0;
@@ -489,1385 +502,1077 @@
             bottom: 0;
             background-color: rgba(0, 0, 0, 0.5);
             display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .notes-modal {
-            background-color: var(--light-color);
-            width: 80%;
-            max-width: 800px;
-            height: 70%;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            display: flex;
             flex-direction: column;
-        }
-
-        .modal-header {
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 500;
-            color: var(--dark-color);
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--dark-color);
-            font-size: 20px;
-        }
-
-        .modal-content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .handwriting-panel {
-            flex: 1;
-            border-right: 1px solid var(--border);
-            position: relative;
-        }
-
-        #notes-canvas {
-            width: 100%;
-            height: 100%;
-            background-color: #f8f9fa;
-        }
-
-        .text-panel {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-        }
-
-        .text-output {
-            min-height: 100%;
-            white-space: pre-wrap;
-            color: var(--dark-color);
-        }
-
-        .modal-footer {
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            border-top: 1px solid var(--border);
-        }
-
-        .modal-btn {
-            padding: 8px 16px;
-            border-radius: var(--border-radius);
-            border: none;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-clear {
-            background-color: var(--secondary-color);
-            color: var(--dark-color);
-        }
-
-        .btn-convert {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        /* Slide Controls */
-        .slide-controls {
-            background-color: var(--light-color);
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .slide-nav {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .slide-thumbnails {
-            display: flex;
-            gap: 5px;
-            overflow-x: auto;
-            padding: 5px 0;
-        }
-
-        .slide-thumbnail {
-            width: 60px;
-            height: 40px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            background-color: white;
-            cursor: pointer;
-            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
-            transition: var(--transition);
+            z-index: 10000;
         }
-
-        .slide-thumbnail:hover {
-            border-color: var(--primary-color);
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
         }
-
-        .slide-thumbnail.active {
-            border-color: var(--primary-color);
-            background-color: rgba(74, 107, 255, 0.1);
-        }
-
-        .add-slide {
-            width: 60px;
-            height: 40px;
-            border: 1px dashed #dee2e6;
-            border-radius: 4px;
-            background-color: transparent;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-
-        .add-slide:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        /* Notifications */
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: var(--dark-color);
+        
+        .loading-text {
             color: white;
-            padding: 12px 16px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transform: translateX(150%);
-            transition: transform 0.3s ease;
-            z-index: 1000;
+            margin-top: 20px;
+            font-size: 1.2rem;
         }
-
-        .notification.show {
-            transform: translateX(0);
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-
-        .notification-success {
-            background-color: var(--success-color);
+        
+        /* Shape preview styles */
+        .shape-preview {
+            position: absolute;
+            pointer-events: none;
+            z-index: 90;
         }
-
-        .notification-error {
-            background-color: var(--danger-color);
+        
+        /* Tool selection animation */
+        @keyframes toolPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
-
-        .notification-warning {
-            background-color: var(--warning-color);
-            color: var(--dark-color);
+        
+        .tool.selected {
+            animation: toolPulse 0.5s ease;
         }
-
-        /* Recording Indicator */
-        .recording-indicator {
-            position: fixed;
-            top: 10px;
+        
+        /* Improved cursor styles */
+        .cursor-name {
+            position: absolute;
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: var(--danger-color);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            z-index: 1000;
-        }
-
-        .recording-dot {
-            width: 8px;
-            height: 8px;
-            background-color: white;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .right-panel {
-                position: fixed;
-                top: 0;
-                right: -100%;
-                width: 90%;
-                max-width: 400px;
-                height: 100%;
-                z-index: 100;
-                transition: right 0.3s ease;
-            }
-
-            .right-panel.show {
-                right: 0;
-            }
-
-            .tools {
-                gap: 15px;
-            }
-
-            .tool span {
-                display: none;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-fadeInUp {
-            animation: fadeInUp 0.3s ease forwards;
+            white-space: nowrap;
+            font-size: 12px;
+            text-shadow: 0 0 2px white;
+            padding: 2px 6px;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div class="loading-screen">
-        <div class="logo-animation">
-            <img src="https://sigmawire.net/i/04/itNgcI.png" alt="WhiteBoard Education Logo">
-            <h1>WhiteBoard Education</h1>
-        </div>
-        <p>Loading collaborative whiteboard...</p>
-    </div>
-
-    <!-- Main Application -->
-    <div class="container" style="display: none;">
-        <!-- Header -->
-        <header class="header">
-            <div class="logo">
-                <img src="https://sigmawire.net/i/04/itNgcI.png" alt="WhiteBoard Education Logo">
-                <h2>WhiteBoard Education</h2>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <img src="https://sigmawire.net/i/04/qh5l0U.png" alt="WhiteBoard Education Logo" class="logo-img">
+                <div class="logo-text">WhiteBoard Education</div>
             </div>
-            <div class="header-controls">
-                <div class="user-count">
-                    <i class="fas fa-users"></i>
-                    <span id="userCount">1</span> online
-                </div>
-                <button class="btn btn-outline" id="inviteBtn">
-                    <i class="fas fa-user-plus"></i> Invite
-                </button>
-                <button class="btn" id="recordBtn">
-                    <i class="fas fa-circle"></i> Record
-                </button>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Whiteboard Area -->
-            <div class="whiteboard-container">
-                <!-- Whiteboard Mode Selection -->
-                <div class="whiteboard-header">
-                    <div class="board-options">
-                        <button class="board-btn active" data-board="blank">
-                            <i class="fas fa-square"></i>
-                            Blank
-                        </button>
-                        <button class="board-btn" data-board="graph">
-                            <i class="fas fa-border-style"></i>
-                            Grid
-                        </button>
-                    </div>
-
-                    <div class="color-palette">
-                        <span class="color-label">Color:</span>
-                        <div class="color-option selected" data-color="#000000" style="background-color: #000000;"></div>
-                        <div class="color-option" data-color="#4285f4" style="background-color: #4285f4;"></div>
-                        <div class="color-option" data-color="#ea4335" style="background-color: #ea4335;"></div>
-                        <div class="color-option" data-color="#fbbc05" style="background-color: #fbbc05;"></div>
-                        <div class="color-option" data-color="#34a853" style="background-color: #34a853;"></div>
-                        <div class="color-option" data-color="#ffffff" style="border: 1px solid #dee2e6;"></div>
-                    </div>
-                </div>
-
-                <!-- Toolbar -->
-                <div class="toolbar">
-                    <div class="tool-group">
-                        <button class="tool-btn active" id="pencilTool" title="Pencil">
-                            <i class="fas fa-pencil-alt"></i>
-                        </button>
-                        <button class="tool-btn" id="lineTool" title="Line">
-                            <i class="fas fa-slash"></i>
-                        </button>
-                        <button class="tool-btn" id="rectangleTool" title="Rectangle">
-                            <i class="far fa-square"></i>
-                        </button>
-                        <button class="tool-btn" id="circleTool" title="Circle">
-                            <i class="far fa-circle"></i>
-                        </button>
-                        <button class="tool-btn" id="textTool" title="Text">
-                            <i class="fas fa-font"></i>
-                        </button>
-                        <button class="tool-btn" id="eraserTool" title="Eraser">
-                            <i class="fas fa-eraser"></i>
-                        </button>
-                    </div>
-
-                    <div class="tool-group">
-                        <input type="color" class="color-picker" id="colorPicker" value="#000000" title="Color">
-                        <select class="line-width" id="lineWidth" title="Line Width">
-                            <option value="1">1px</option>
-                            <option value="3" selected>3px</option>
-                            <option value="5">5px</option>
-                            <option value="8">8px</option>
-                            <option value="10">10px</option>
-                        </select>
-                    </div>
-
-                    <div class="tool-group">
-                        <button class="tool-btn" id="undoBtn" title="Undo">
-                            <i class="fas fa-undo"></i>
-                        </button>
-                        <button class="tool-btn" id="redoBtn" title="Redo">
-                            <i class="fas fa-redo"></i>
-                        </button>
-                        <button class="tool-btn" id="clearBtn" title="Clear">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-
-                    <div class="tool-group">
-                        <button class="tool-btn" id="saveBtn" title="Save">
-                            <i class="fas fa-save"></i>
-                        </button>
-                        <button class="tool-btn" id="loadBtn" title="Load">
-                            <i class="fas fa-folder-open"></i>
-                        </button>
-                        <button class="tool-btn" id="exportBtn" title="Export">
-                            <i class="fas fa-file-export"></i>
-                        </button>
-                    </div>
-
-                    <div class="tool-group">
-                        <button class="tool-btn" id="boardColorBtn" title="Board Color">
-                            <i class="fas fa-fill-drip"></i>
-                        </button>
-                        <input type="color" class="color-picker" id="boardColorPicker" value="#ffffff" title="Board Color" style="display: none;">
-                    </div>
-                </div>
-
-                <!-- Whiteboard Canvas Area with Multiple Boards -->
-                <div class="whiteboard-area">
-                    <div class="canvas-container active" id="blank-board">
-                        <canvas id="blank-canvas"></canvas>
-                    </div>
-                    <div class="canvas-container" id="graph-board">
-                        <canvas id="graph-canvas"></canvas>
-                    </div>
-                </div>
-
-                <!-- Slide Controls -->
-                <div class="slide-controls">
-                    <div class="slide-nav">
-                        <button class="btn btn-outline" id="prevSlide">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <span id="slideCounter">Slide 1 of 1</span>
-                        <button class="btn btn-outline" id="nextSlide">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                    <div class="slide-thumbnails">
-                        <div class="slide-thumbnail active">1</div>
-                        <button class="add-slide" id="addSlide">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Panel - Video Only -->
-            <div class="right-panel" id="rightPanel">
-                <div class="panel-header">
-                    <div class="panel-title">Video Conference</div>
-                    <button class="panel-close" id="panelClose">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <div class="video-container">
-                    <div class="video-preview">
-                        <i class="fas fa-video-slash fa-3x"></i>
-                        <p>Video feed will appear here</p>
-                    </div>
-                    <div class="video-controls">
-                        <button class="video-control-btn" id="toggleVideoBtn">
-                            <i class="fas fa-video"></i> Video
-                        </button>
-                        <button class="video-control-btn" id="toggleMicBtn">
-                            <i class="fas fa-microphone"></i> Audio
-                        </button>
-                    </div>
-                </div>
+            <div class="user-count">
+                <i class="fas fa-users"></i>
+                <span id="userCount">0</span>
             </div>
         </div>
-
-        <!-- Bottom Controls -->
-        <div class="bottom-controls">
-            <div class="tools">
-                <div class="tool active" data-tool="pen">
-                    <i class="fas fa-pen"></i>
-                    <span>Pen</span>
+        
+        <div class="main">
+            <div class="toolbar">
+                <div class="tool active" data-tool="pencil">
+                    <i class="fas fa-pencil-alt"></i>
+                    <span class="tool-tip">Pencil (P)</span>
+                </div>
+                <div class="tool" data-tool="line">
+                    <i class="fas fa-slash"></i>
+                    <span class="tool-tip">Line (L)</span>
+                </div>
+                <div class="tool" data-tool="rectangle">
+                    <i class="far fa-square"></i>
+                    <span class="tool-tip">Rectangle (R)</span>
+                </div>
+                <div class="tool" data-tool="circle">
+                    <i class="far fa-circle"></i>
+                    <span class="tool-tip">Circle (C)</span>
                 </div>
                 <div class="tool" data-tool="eraser">
                     <i class="fas fa-eraser"></i>
-                    <span>Eraser</span>
-                </div>
-                <div class="tool" data-tool="shapes">
-                    <i class="fas fa-shapes"></i>
-                    <span>Shapes</span>
+                    <span class="tool-tip">Eraser (E)</span>
                 </div>
                 <div class="tool" data-tool="text">
                     <i class="fas fa-font"></i>
-                    <span>Text</span>
+                    <span class="tool-tip">Text (T)</span>
                 </div>
-                <div class="tool" id="notes-tool">
-                    <i class="fas fa-pen-fancy"></i>
-                    <span>Notes</span>
+                <div class="tool" data-tool="undo">
+                    <i class="fas fa-undo"></i>
+                    <span class="tool-tip">Undo (Ctrl+Z)</span>
                 </div>
-                <div class="tool" id="video-tool">
-                    <i class="fas fa-video"></i>
-                    <span>Video</span>
+                <div class="tool" data-tool="redo">
+                    <i class="fas fa-redo"></i>
+                    <span class="tool-tip">Redo (Ctrl+Y)</span>
                 </div>
-                <div class="tool" id="fullscreen-tool">
-                    <i class="fas fa-expand"></i>
-                    <span>Fullscreen</span>
+                
+                <div class="color-picker-container">
+                    <div class="color-picker-label">Color</div>
+                    <input type="color" class="color-picker" id="colorPicker" value="#000000">
+                </div>
+                
+                <div class="line-width-control">
+                    <div class="line-width-label">Size</div>
+                    <input type="range" class="line-width-slider" id="lineWidth" min="1" max="20" value="3">
+                </div>
+                
+                <div class="tool" data-tool="clear">
+                    <i class="fas fa-trash-alt"></i>
+                    <span class="tool-tip">Clear Board</span>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Notes Modal -->
-    <div class="modal-overlay" id="notes-modal">
-        <div class="notes-modal">
-            <div class="modal-header">
-                <div class="modal-title">Handwritten Notes</div>
-                <button class="modal-close" id="closeNotesModal">
-                    <i class="fas fa-times"></i>
-                </button>
+            
+            <div class="whiteboard-container">
+                <canvas id="whiteboard"></canvas>
+                <div id="shapePreview" class="shape-preview"></div>
             </div>
-
-            <div class="modal-content">
-                <div class="handwriting-panel">
-                    <canvas id="notes-canvas"></canvas>
+            
+            <div class="toggle-panel" id="togglePanel">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            
+            <div class="right-panel">
+                <div class="user-list-container">
+                    <div class="user-list-title">
+                        <i class="fas fa-users"></i>
+                        <h3>Online Users</h3>
+                    </div>
+                    <div id="userList">
+                        <!-- Users will be added here dynamically -->
+                    </div>
                 </div>
-                <div class="text-panel">
-                    <div class="text-output" id="text-output">
-                        Converted text will appear here...
+                
+                <div class="media-container">
+                    <div class="media-controls">
+                        <button id="micBtn" class="media-btn">
+                            <i class="fas fa-microphone"></i>
+                            <span>Mic</span>
+                        </button>
+                        <button id="videoBtn" class="media-btn">
+                            <i class="fas fa-video"></i>
+                            <span>Video</span>
+                        </button>
+                    </div>
+                    
+                    <div class="video-container">
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <div class="video-placeholder">
+                            <i class="fas fa-user"></i>
+                            <div class="video-placeholder-text">Your video will appear here</div>
+                        </div>
+                    </div>
+                    
+                    <div class="video-container">
+                        <video id="remoteVideo" autoplay playsinline></video>
+                        <div class="video-placeholder">
+                            <i class="fas fa-users"></i>
+                            <div class="video-placeholder-text">Other participant's video will appear here</div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="modal-footer">
-                <button class="modal-btn btn-clear" id="clearNotesBtn">
-                    <i class="fas fa-trash-alt"></i>
-                    Clear
+        </div>
+        
+        <div class="footer">
+            <div class="footer-info">
+                <span>Real-time collaboration with WebRTC & Socket.io</span>
+            </div>
+            <div class="board-actions">
+                <button class="board-btn" id="copyBoardId">
+                    <i class="fas fa-copy"></i> Copy Board ID
                 </button>
-                <button class="modal-btn btn-convert" id="convertNotesBtn">
-                    <i class="fas fa-magic"></i>
-                    Convert to Text
-                </button>
+                <span id="boardId">Loading...</span>
             </div>
         </div>
     </div>
-
-    <!-- Invite Modal -->
-    <div class="modal-overlay" id="invite-modal">
-        <div class="notes-modal" style="max-width: 500px;">
-            <div class="modal-header">
-                <div class="modal-title">Invite Participants</div>
-                <button class="modal-close" id="closeInviteModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <div class="modal-content" style="padding: 20px;">
-                <p>Share this link with others to join your whiteboard session:</p>
-                <div style="display: flex; gap: 10px; margin: 15px 0;">
-                    <input type="text" id="inviteLink" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" readonly>
-                    <button class="btn" id="copyInviteLink">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="modal-btn btn-clear" id="cancelInviteBtn">
-                    Close
-                </button>
-            </div>
-        </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Connecting to board...</div>
     </div>
-
-    <!-- Recording Indicator -->
-    <div class="recording-indicator" id="recordingIndicator" style="display: none;">
-        <div class="recording-dot"></div>
-        <span>Recording</span>
-    </div>
-
-    <!-- Notifications -->
-    <div class="notification" id="notification">
-        <i class="fas fa-info-circle"></i>
-        <span id="notificationText">Notification message</span>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Simulate loading
-            setTimeout(function() {
-                document.querySelector('.loading-screen').classList.add('hidden');
-                document.querySelector('.container').style.display = 'flex';
-                
-                // Initialize the app after loading
-                initializeApp();
+        // DOM Elements
+        const whiteboard = document.getElementById('whiteboard');
+        const ctx = whiteboard.getContext('2d');
+        const tools = document.querySelectorAll('.tool');
+        const colorPicker = document.getElementById('colorPicker');
+        const lineWidthSlider = document.getElementById('lineWidth');
+        const userList = document.getElementById('userList');
+        const userCount = document.getElementById('userCount');
+        const boardIdElement = document.getElementById('boardId');
+        const copyBoardIdBtn = document.getElementById('copyBoardId');
+        const notification = document.getElementById('notification');
+        const micBtn = document.getElementById('micBtn');
+        const videoBtn = document.getElementById('videoBtn');
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const localVideoPlaceholder = localVideo.nextElementSibling;
+        const remoteVideoPlaceholder = remoteVideo.nextElementSibling;
+        const togglePanelBtn = document.getElementById('togglePanel');
+        const loadingScreen = document.getElementById('loading');
+        const loadingText = loadingScreen.querySelector('.loading-text');
+        const shapePreview = document.getElementById('shapePreview');
+        
+        // Whiteboard state
+        let currentTool = 'pencil';
+        let currentColor = '#000000';
+        let currentLineWidth = 3;
+        let isDrawing = false;
+        let startX = 0;
+        let startY = 0;
+        let lastX = 0;
+        let lastY = 0;
+        let drawingHistory = [];
+        let historyPointer = -1;
+        let users = {};
+        let textInputActive = false;
+        let tempCanvas = document.createElement('canvas');
+        let tempCtx = tempCanvas.getContext('2d');
+        
+        // Media state
+        let localStream = null;
+        let peerConnection = null;
+        let isMicOn = false;
+        let isVideoOn = false;
+        const configuration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' }
+            ]
+        };
+        
+        // Keyboard shortcuts
+        const toolShortcuts = {
+            'p': 'pencil',
+            'l': 'line',
+            'r': 'rectangle',
+            'c': 'circle',
+            'e': 'eraser',
+            't': 'text'
+        };
+        
+        // Socket.io connection
+        const socket = io();
+        let boardId = '';
+        let userId = generateUserId();
+        let userName = `User-${userId.substring(0, 4)}`;
+        let userColor = generateRandomColor();
+        
+        // Initialize whiteboard
+        function initWhiteboard() {
+            // Set canvas size
+            resizeCanvas();
+            
+            // Set initial styles
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentLineWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.font = `${currentLineWidth * 5}px Arial`;
+            ctx.fillStyle = currentColor;
+            
+            // Initialize temp canvas
+            tempCanvas.width = whiteboard.width;
+            tempCanvas.height = whiteboard.height;
+            
+            // Load board if ID exists in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlBoardId = urlParams.get('board');
+            
+            if (urlBoardId) {
+                showLoading('Joining board...');
+                socket.emit('joinBoard', { boardId: urlBoardId, userId, userName, userColor });
+            } else {
+                showLoading('Creating new board...');
+                socket.emit('createBoard', { userId, userName, userColor });
+            }
+            
+            // Hide loading screen after connection is established
+            setTimeout(() => {
+                hideLoading();
             }, 2000);
+        }
+        
+        // Generate a unique user ID
+        function generateUserId() {
+            return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+        }
+        
+        // Generate a random color
+        function generateRandomColor() {
+            return `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
+        }
+        
+        // Resize canvas to fit container
+        function resizeCanvas() {
+            const container = whiteboard.parentElement;
+            whiteboard.width = container.offsetWidth;
+            whiteboard.height = container.offsetHeight;
+            tempCanvas.width = container.offsetWidth;
+            tempCanvas.height = container.offsetHeight;
+            
+            // Redraw everything after resize
+            redrawWhiteboard();
+        }
+        
+        // Event Listeners
+        window.addEventListener('resize', resizeCanvas);
+        
+        tools.forEach(tool => {
+            tool.addEventListener('click', () => {
+                if (textInputActive) return;
+                
+                const toolName = tool.dataset.tool;
+                selectTool(toolName);
+                
+                // Add selection animation
+                tool.classList.add('selected');
+                setTimeout(() => {
+                    tool.classList.remove('selected');
+                }, 500);
+            });
         });
-
-        function initializeApp() {
-            // Canvas setup
-            const blankCanvas = document.getElementById('blank-canvas');
-            const graphCanvas = document.getElementById('graph-canvas');
-            const notesCanvas = document.getElementById('notes-canvas');
-            
-            // Set canvas to full size of container
-            function resizeCanvas(canvas) {
-                const container = canvas.parentElement;
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
-            }
-            
-            window.addEventListener('resize', function() {
-                resizeCanvas(blankCanvas);
-                resizeCanvas(graphCanvas);
-                resizeCanvas(notesCanvas);
-                drawGrid();
-                redrawWhiteboard();
+        
+        colorPicker.addEventListener('input', (e) => {
+            currentColor = e.target.value;
+            ctx.strokeStyle = currentColor;
+            ctx.fillStyle = currentColor;
+        });
+        
+        lineWidthSlider.addEventListener('input', (e) => {
+            currentLineWidth = parseInt(e.target.value);
+            ctx.lineWidth = currentLineWidth;
+            ctx.font = `${currentLineWidth * 5}px Arial`;
+        });
+        
+        copyBoardIdBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(boardId).then(() => {
+                showNotification('Board ID copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy board ID:', err);
+                showNotification('Failed to copy Board ID');
             });
+        });
+        
+        togglePanelBtn.addEventListener('click', () => {
+            document.querySelector('.container').classList.toggle('panel-collapsed');
+            const icon = togglePanelBtn.querySelector('i');
+            if (document.querySelector('.container').classList.contains('panel-collapsed')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (textInputActive) return;
             
-            resizeCanvas(blankCanvas);
-            resizeCanvas(graphCanvas);
-            resizeCanvas(notesCanvas);
-            
-            // Get contexts
-            const blankCtx = blankCanvas.getContext('2d');
-            const graphCtx = graphCanvas.getContext('2d');
-            const notesCtx = notesCanvas.getContext('2d');
-            
-            // Current active whiteboard
-            let activeCanvas = blankCanvas;
-            let activeCtx = blankCtx;
-            let currentBoard = 'blank';
-            
-            // Draw grid on graph canvas
-            function drawGrid() {
-                graphCtx.fillStyle = '#ffffff';
-                graphCtx.fillRect(0, 0, graphCanvas.width, graphCanvas.height);
+            // Tool shortcuts
+            if (toolShortcuts[e.key.toLowerCase()]) {
+                const toolName = toolShortcuts[e.key.toLowerCase()];
+                selectTool(toolName);
                 
-                graphCtx.strokeStyle = '#e0e0e0';
-                graphCtx.lineWidth = 1;
-                
-                const gridSize = 20;
-                const width = graphCanvas.width;
-                const height = graphCanvas.height;
-                
-                // Vertical lines
-                for (let x = 0; x <= width; x += gridSize) {
-                    graphCtx.beginPath();
-                    graphCtx.moveTo(x, 0);
-                    graphCtx.lineTo(x, height);
-                    graphCtx.stroke();
+                // Find and animate the tool button
+                const toolButton = document.querySelector(`.tool[data-tool="${toolName}"]`);
+                if (toolButton) {
+                    toolButton.classList.add('selected');
+                    setTimeout(() => {
+                        toolButton.classList.remove('selected');
+                    }, 500);
                 }
                 
-                // Horizontal lines
-                for (let y = 0; y <= height; y += gridSize) {
-                    graphCtx.beginPath();
-                    graphCtx.moveTo(0, y);
-                    graphCtx.lineTo(width, y);
-                    graphCtx.stroke();
-                }
-                
-                // Reset styles
-                graphCtx.strokeStyle = '#000000';
-                graphCtx.lineWidth = 3;
+                e.preventDefault();
             }
-
-            drawGrid();
             
-            // Drawing variables
-            let isDrawing = false;
-            let currentTool = 'pencil';
-            let currentColor = '#000000';
-            let currentLineWidth = 3;
-            let boardColor = '#ffffff';
-            let lastX = 0;
-            let lastY = 0;
-            let shapes = [];
-            let currentSlide = 0;
-            let slides = [{
-                shapes: [],
-                boardColor: '#ffffff'
-            }];
-            
-            // User data
-            let userId = generateUserId();
-            let userName = `User${Math.floor(Math.random() * 1000)}`;
-            let userColor = getRandomColor();
-            
-            // Socket.io connection
-            const socket = io();
-            
-            // Initialize whiteboard with saved data if available
-            const savedWhiteboard = localStorage.getItem('whiteboardData');
-            if (savedWhiteboard) {
-                try {
-                    const data = JSON.parse(savedWhiteboard);
-                    slides = data.slides || slides;
-                    currentSlide = data.currentSlide || 0;
-                    boardColor = slides[currentSlide].boardColor || boardColor;
-                    redrawWhiteboard();
-                    updateSlideCounter();
-                } catch (e) {
-                    console.error('Error loading saved whiteboard:', e);
+            // Undo/Redo shortcuts
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'z') {
+                    undo();
+                    e.preventDefault();
+                } else if (e.key === 'y') {
+                    redo();
+                    e.preventDefault();
                 }
             }
+        });
+        
+        // Select a tool
+        function selectTool(toolName) {
+            // If already selected, don't do anything
+            if (currentTool === toolName && toolName !== 'text') return;
             
-            // Set initial board color
-            blankCanvas.style.backgroundColor = boardColor;
-            graphCanvas.style.backgroundColor = boardColor;
+            // Deselect all tools
+            tools.forEach(t => t.classList.remove('active'));
             
-            // Board selection
-            document.querySelectorAll('.board-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.board-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    currentBoard = this.dataset.board;
-                    
-                    if (currentBoard === 'blank') {
-                        document.getElementById('blank-board').classList.add('active');
-                        document.getElementById('graph-board').classList.remove('active');
-                        activeCanvas = blankCanvas;
-                        activeCtx = blankCtx;
-                    } else {
-                        document.getElementById('blank-board').classList.remove('active');
-                        document.getElementById('graph-board').classList.add('active');
-                        activeCanvas = graphCanvas;
-                        activeCtx = graphCtx;
-                    }
-                });
-            });
-            
-            // Color selection
-            document.querySelectorAll('.color-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-                    this.classList.add('selected');
-                    currentColor = this.dataset.color;
-                    blankCtx.strokeStyle = currentColor;
-                    graphCtx.strokeStyle = currentColor;
-                    notesCtx.strokeStyle = currentColor;
-                });
-            });
-            
-            // Tool selection
-            document.querySelectorAll('.tool').forEach(tool => {
-                tool.addEventListener('click', function() {
-                    document.querySelectorAll('.tool').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    currentTool = this.dataset.tool;
-                    
-                    // Change cursor based on tool
-                    switch(currentTool) {
-                        case 'pencil':
-                        case 'line':
-                        case 'eraser':
-                        case 'shapes':
-                            blankCanvas.style.cursor = 'crosshair';
-                            graphCanvas.style.cursor = 'crosshair';
-                            break;
-                        case 'text':
-                            blankCanvas.style.cursor = 'text';
-                            graphCanvas.style.cursor = 'text';
-                            break;
-                        default:
-                            blankCanvas.style.cursor = 'default';
-                            graphCanvas.style.cursor = 'default';
-                    }
-                });
-            });
-            
-            // Notes functionality
-            document.getElementById('notes-tool').addEventListener('click', function() {
-                document.getElementById('notes-modal').classList.add('active');
-            });
-            
-            document.getElementById('closeNotesModal').addEventListener('click', function() {
-                document.getElementById('notes-modal').classList.remove('active');
-            });
-            
-            document.getElementById('clearNotesBtn').addEventListener('click', function() {
-                notesCtx.clearRect(0, 0, notesCanvas.width, notesCanvas.height);
-                document.getElementById('text-output').textContent = 'Converted text will appear here...';
-            });
-            
-            document.getElementById('convertNotesBtn').addEventListener('click', function() {
-                // In a real app, this would use a handwriting recognition API
-                document.getElementById('text-output').textContent = "This would be the converted text from your handwriting in a production application. The implementation would use an API like Google Cloud Vision or Microsoft Ink Recognizer to process the canvas image and return text.";
-            });
-            
-            // Notes canvas drawing
-            let isNotesDrawing = false;
-            let lastNotesX = 0;
-            let lastNotesY = 0;
-            
-            notesCanvas.addEventListener('mousedown', startNotesDrawing);
-            notesCanvas.addEventListener('mousemove', drawNotes);
-            notesCanvas.addEventListener('mouseup', stopNotesDrawing);
-            notesCanvas.addEventListener('mouseout', stopNotesDrawing);
-            
-            function startNotesDrawing(e) {
-                isNotesDrawing = true;
-                [lastNotesX, lastNotesY] = [e.offsetX, e.offsetY];
-            }
-            
-            function drawNotes(e) {
-                if (!isNotesDrawing) return;
+            // Find and select the new tool
+            const newTool = Array.from(tools).find(t => t.dataset.tool === toolName);
+            if (newTool) {
+                newTool.classList.add('active');
+                currentTool = toolName;
                 
-                notesCtx.beginPath();
-                notesCtx.moveTo(lastNotesX, lastNotesY);
-                notesCtx.lineTo(e.offsetX, e.offsetY);
-                notesCtx.strokeStyle = currentColor;
-                notesCtx.lineWidth = currentLineWidth;
-                notesCtx.lineCap = 'round';
-                notesCtx.lineJoin = 'round';
-                notesCtx.stroke();
+                // Handle special tools
+                if (toolName === 'undo') {
+                    undo();
+                    selectTool('pencil');
+                } else if (toolName === 'redo') {
+                    redo();
+                    selectTool('pencil');
+                } else if (toolName === 'clear') {
+                    clearBoard();
+                    selectTool('pencil');
+                } else if (toolName === 'text') {
+                    startTextInput();
+                }
+            }
+        }
+        
+        // Start text input
+        function startTextInput() {
+            textInputActive = true;
+            const text = prompt('Enter your text:');
+            
+            if (text) {
+                const action = {
+                    tool: 'text',
+                    color: currentColor,
+                    x: lastX,
+                    y: lastY,
+                    text: text,
+                    size: currentLineWidth,
+                    userId
+                };
                 
-                [lastNotesX, lastNotesY] = [e.offsetX, e.offsetY];
+                // Add to history
+                addToHistory(action);
+                
+                // Send to server
+                socket.emit('draw', action);
+                
+                // Draw the text
+                drawAction(action);
             }
             
-            function stopNotesDrawing() {
-                isNotesDrawing = false;
+            textInputActive = false;
+            selectTool('pencil');
+        }
+        
+        // Drawing functions
+        whiteboard.addEventListener('mousedown', startDrawing);
+        whiteboard.addEventListener('mousemove', draw);
+        whiteboard.addEventListener('mouseup', stopDrawing);
+        whiteboard.addEventListener('mouseout', stopDrawing);
+        whiteboard.addEventListener('click', handleClick);
+        
+        function startDrawing(e) {
+            if (currentTool === 'undo' || currentTool === 'redo' || currentTool === 'clear' || textInputActive) return;
+            
+            isDrawing = true;
+            startX = e.offsetX;
+            startY = e.offsetY;
+            lastX = e.offsetX;
+            lastY = e.offsetY;
+            
+            // Start a new path for freehand drawing
+            if (currentTool === 'pencil' || currentTool === 'eraser') {
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
             }
             
-            // Video panel toggle
-            document.getElementById('video-tool').addEventListener('click', function() {
-                document.getElementById('rightPanel').classList.toggle('collapsed');
-            });
+            // Send cursor position to other users
+            socket.emit('cursorMove', { x: e.offsetX, y: e.offsetY, userId });
+        }
+        
+        function draw(e) {
+            const x = e.offsetX;
+            const y = e.offsetY;
             
-            document.getElementById('panelClose').addEventListener('click', function() {
-                document.getElementById('rightPanel').classList.add('collapsed');
-            });
+            // Always send cursor position
+            socket.emit('cursorMove', { x, y, userId });
             
-            // Fullscreen functionality
-            document.getElementById('fullscreen-tool').addEventListener('click', function() {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+            if (!isDrawing) return;
+            
+            lastX = x;
+            lastY = y;
+            
+            switch (currentTool) {
+                case 'pencil':
+                    ctx.strokeStyle = currentColor;
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    
+                    // Send drawing data to server
+                    socket.emit('draw', {
+                        tool: currentTool,
+                        color: currentColor,
+                        x1: lastX,
+                        y1: lastY,
+                        x2: x,
+                        y2: y,
+                        lineWidth: currentLineWidth,
+                        userId
                     });
-                } else {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    }
-                }
-            });
+                    break;
+                    
+                case 'eraser':
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    
+                    // Send drawing data to server
+                    socket.emit('draw', {
+                        tool: currentTool,
+                        color: '#ffffff',
+                        x1: lastX,
+                        y1: lastY,
+                        x2: x,
+                        y2: y,
+                        lineWidth: currentLineWidth,
+                        userId
+                    });
+                    break;
+                    
+                case 'line':
+                case 'rectangle':
+                case 'circle':
+                    // For shapes, we'll just show a preview and handle the final drawing in stopDrawing
+                    drawShapePreview(startX, startY, x, y, currentTool);
+                    break;
+            }
+        }
+        
+        function drawShapePreview(x1, y1, x2, y2, shapeType) {
+            // Clear the preview
+            shapePreview.innerHTML = '';
             
-            // Drawing functions for whiteboard
-            function startDrawing(e) {
-                isDrawing = true;
-                [lastX, lastY] = [e.offsetX, e.offsetY];
-                
-                if (currentTool === 'text') {
-                    addText(e.offsetX, e.offsetY);
-                    isDrawing = false;
-                    return;
-                }
-                
-                // Start a new shape
-                const newShape = {
+            // Create a div for the preview
+            const preview = document.createElement('div');
+            preview.style.position = 'absolute';
+            preview.style.border = `${currentLineWidth}px solid ${currentColor}`;
+            preview.style.backgroundColor = shapeType === 'rectangle' ? `${currentColor}20` : 'transparent';
+            
+            switch (shapeType) {
+                case 'line':
+                    const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                    const angle = Math.atan2(y2 - y1, x2 - x1);
+                    
+                    preview.style.width = `${length}px`;
+                    preview.style.height = '0';
+                    preview.style.borderBottom = `${currentLineWidth}px solid ${currentColor}`;
+                    preview.style.transformOrigin = '0 0';
+                    preview.style.transform = `rotate(${angle}rad)`;
+                    preview.style.left = `${x1}px`;
+                    preview.style.top = `${y1}px`;
+                    break;
+                    
+                case 'rectangle':
+                    preview.style.left = `${Math.min(x1, x2)}px`;
+                    preview.style.top = `${Math.min(y1, y2)}px`;
+                    preview.style.width = `${Math.abs(x2 - x1)}px`;
+                    preview.style.height = `${Math.abs(y2 - y1)}px`;
+                    break;
+                    
+                case 'circle':
+                    const radius = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                    preview.style.width = `${radius * 2}px`;
+                    preview.style.height = `${radius * 2}px`;
+                    preview.style.borderRadius = '50%';
+                    preview.style.left = `${x1 - radius}px`;
+                    preview.style.top = `${y1 - radius}px`;
+                    break;
+            }
+            
+            shapePreview.appendChild(preview);
+        }
+        
+        function handleClick(e) {
+            if (currentTool === 'text') {
+                lastX = e.offsetX;
+                lastY = e.offsetY;
+                startTextInput();
+            }
+        }
+        
+        function stopDrawing(e) {
+            if (!isDrawing || currentTool === 'text') return;
+            
+            const x = e.offsetX;
+            const y = e.offsetY;
+            
+            // Clear the preview
+            shapePreview.innerHTML = '';
+            
+            // For shapes, complete the drawing and add to history
+            if (currentTool === 'line' || currentTool === 'rectangle' || currentTool === 'circle') {
+                const shape = {
                     tool: currentTool,
                     color: currentColor,
+                    x1: startX,
+                    y1: startY,
+                    x2: x,
+                    y2: y,
                     lineWidth: currentLineWidth,
-                    points: [[e.offsetX, e.offsetY]],
-                    isComplete: false
+                    userId
                 };
                 
-                if (currentTool === 'rectangle' || currentTool === 'circle' || currentTool === 'shapes') {
-                    newShape.startX = e.offsetX;
-                    newShape.startY = e.offsetY;
-                }
+                // Add to history
+                addToHistory(shape);
                 
-                slides[currentSlide].shapes.push(newShape);
+                // Send to server
+                socket.emit('draw', shape);
+                
+                // Draw the shape
+                drawAction(shape);
+            } else if (currentTool === 'pencil' || currentTool === 'eraser') {
+                // For pencil/eraser, the path is already drawn
+                ctx.closePath();
+            }
+            
+            isDrawing = false;
+        }
+        
+        // History functions
+        function addToHistory(action) {
+            // If we're not at the end of history, discard future actions
+            if (historyPointer < drawingHistory.length - 1) {
+                drawingHistory = drawingHistory.slice(0, historyPointer + 1);
+            }
+            
+            drawingHistory.push(action);
+            historyPointer = drawingHistory.length - 1;
+        }
+        
+        function undo() {
+            if (historyPointer >= 0) {
+                historyPointer--;
                 redrawWhiteboard();
+                socket.emit('undo', { userId });
             }
-            
-            function draw(e) {
-                if (!isDrawing) return;
-                
-                const currentShapes = slides[currentSlide].shapes;
-                const currentShape = currentShapes[currentShapes.length - 1];
-                
-                if (currentTool === 'pencil' || currentTool === 'line' || currentTool === 'eraser') {
-                    currentShape.points.push([e.offsetX, e.offsetY]);
-                    
-                    // Draw locally
-                    activeCtx.beginPath();
-                    activeCtx.moveTo(lastX, lastY);
-                    activeCtx.lineTo(e.offsetX, e.offsetY);
-                    activeCtx.strokeStyle = currentShape.color;
-                    activeCtx.lineWidth = currentShape.lineWidth;
-                    activeCtx.lineCap = 'round';
-                    activeCtx.lineJoin = 'round';
-                    activeCtx.stroke();
-                    
-                    [lastX, lastY] = [e.offsetX, e.offsetY];
-                } else if (currentTool === 'rectangle' || currentTool === 'circle' || currentTool === 'shapes') {
-                    // For shapes, we just redraw the entire shape
-                    currentShape.width = e.offsetX - currentShape.startX;
-                    currentShape.height = e.offsetY - currentShape.startY;
-                    redrawWhiteboard();
-                }
+        }
+        
+        function redo() {
+            if (historyPointer < drawingHistory.length - 1) {
+                historyPointer++;
+                redrawWhiteboard();
+                socket.emit('redo', { userId });
             }
-            
-            function stopDrawing() {
-                if (!isDrawing) return;
-                isDrawing = false;
-                
-                const currentShapes = slides[currentSlide].shapes;
-                const currentShape = currentShapes[currentShapes.length - 1];
-                
-                if (currentShape) {
-                    currentShape.isComplete = true;
-                }
-                
-                saveToLocalStorage();
+        }
+        
+        function clearBoard() {
+            if (confirm('Are you sure you want to clear the board? This cannot be undone.')) {
+                drawingHistory = [];
+                historyPointer = -1;
+                redrawWhiteboard();
+                socket.emit('clear', { userId });
             }
-            
-            function addText(x, y) {
-                const text = prompt('Enter text:');
-                if (text) {
-                    const textShape = {
-                        tool: 'text',
-                        color: currentColor,
-                        text: text,
-                        x: x,
-                        y: y,
-                        fontSize: currentLineWidth * 5,
-                        isComplete: true
-                    };
-                    
-                    slides[currentSlide].shapes.push(textShape);
-                    redrawWhiteboard();
-                    saveToLocalStorage();
-                }
-            }
-            
-            function redrawWhiteboard() {
-                // Clear canvas
-                activeCtx.fillStyle = slides[currentSlide].boardColor || boardColor;
-                activeCtx.fillRect(0, 0, activeCanvas.width, activeCanvas.height);
-                
-                if (currentBoard === 'graph') {
-                    drawGrid();
-                }
-                
-                // Draw all shapes
-                slides[currentSlide].shapes.forEach(shape => {
-                    drawShape(shape);
-                });
-            }
-            
-            function drawShape(shape) {
-                activeCtx.strokeStyle = shape.color;
-                activeCtx.fillStyle = shape.color;
-                activeCtx.lineWidth = shape.lineWidth || currentLineWidth;
-                
-                switch(shape.tool) {
-                    case 'pencil':
-                    case 'line':
-                    case 'eraser':
-                        if (shape.points.length > 0) {
-                            activeCtx.beginPath();
-                            activeCtx.moveTo(shape.points[0][0], shape.points[0][1]);
-                            
-                            for (let i = 1; i < shape.points.length; i++) {
-                                activeCtx.lineTo(shape.points[i][0], shape.points[i][1]);
-                            }
-                            
-                            activeCtx.stroke();
-                        }
-                        break;
-                        
-                    case 'rectangle':
-                    case 'shapes':
-                        activeCtx.beginPath();
-                        activeCtx.rect(
-                            shape.startX, 
-                            shape.startY, 
-                            shape.width, 
-                            shape.height
-                        );
-                        activeCtx.stroke();
-                        break;
-                        
-                    case 'circle':
-                        const radius = Math.sqrt(
-                            Math.pow(shape.width, 2) + 
-                            Math.pow(shape.height, 2)
-                        ) / 2;
-                        
-                        activeCtx.beginPath();
-                        activeCtx.arc(
-                            shape.startX + shape.width / 2,
-                            shape.startY + shape.height / 2,
-                            radius,
-                            0,
-                            Math.PI * 2
-                        );
-                        activeCtx.stroke();
-                        break;
-                        
-                    case 'text':
-                        activeCtx.font = `${shape.fontSize}px Arial`;
-                        activeCtx.fillText(shape.text, shape.x, shape.y);
-                        break;
-                }
-            }
-            
-            // Undo/Redo functionality
-            document.getElementById('undoBtn').addEventListener('click', undo);
-            document.getElementById('redoBtn').addEventListener('click', redo);
-            
-            let undoStack = [];
-            let redoStack = [];
-            
-            function undo() {
-                if (slides[currentSlide].shapes.length > 0) {
-                    const shape = slides[currentSlide].shapes.pop();
-                    undoStack.push(shape);
-                    redrawWhiteboard();
-                    saveToLocalStorage();
-                    showNotification('Undo successful');
-                } else {
-                    showNotification('Nothing to undo', 'warning');
-                }
-            }
-            
-            function redo() {
-                if (undoStack.length > 0) {
-                    const shape = undoStack.pop();
-                    slides[currentSlide].shapes.push(shape);
-                    redoStack.push(shape);
-                    redrawWhiteboard();
-                    saveToLocalStorage();
-                    showNotification('Redo successful');
-                } else {
-                    showNotification('Nothing to redo', 'warning');
-                }
-            }
-            
+        }
+        
+        function redrawWhiteboard() {
             // Clear canvas
-            document.getElementById('clearBtn').addEventListener('click', clearCanvas);
+            ctx.clearRect(0, 0, whiteboard.width, whiteboard.height);
             
-            function clearCanvas() {
-                if (confirm('Are you sure you want to clear the whiteboard?')) {
-                    slides[currentSlide].shapes = [];
-                    undoStack = [];
-                    redoStack = [];
-                    redrawWhiteboard();
-                    saveToLocalStorage();
-                    showNotification('Whiteboard cleared');
-                }
+            // Redraw all actions up to history pointer
+            for (let i = 0; i <= historyPointer; i++) {
+                const action = drawingHistory[i];
+                drawAction(action, false);
+            }
+        }
+        
+        function drawAction(action, addToHistoryFlag = true) {
+            ctx.strokeStyle = action.color;
+            ctx.fillStyle = action.color;
+            ctx.lineWidth = action.lineWidth || 3;
+            
+            switch (action.tool) {
+                case 'pencil':
+                case 'eraser':
+                    ctx.beginPath();
+                    ctx.moveTo(action.x1, action.y1);
+                    ctx.lineTo(action.x2, action.y2);
+                    ctx.stroke();
+                    break;
+                    
+                case 'line':
+                    ctx.beginPath();
+                    ctx.moveTo(action.x1, action.y1);
+                    ctx.lineTo(action.x2, action.y2);
+                    ctx.stroke();
+                    break;
+                    
+                case 'rectangle':
+                    ctx.beginPath();
+                    const rectWidth = action.x2 - action.x1;
+                    const rectHeight = action.y2 - action.y1;
+                    ctx.rect(action.x1, action.y1, rectWidth, rectHeight);
+                    ctx.stroke();
+                    break;
+                    
+                case 'circle':
+                    ctx.beginPath();
+                    const radius = Math.sqrt(Math.pow(action.x2 - action.x1, 2) + Math.pow(action.y2 - action.y1, 2));
+                    ctx.arc(action.x1, action.y1, radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    break;
+                    
+                case 'text':
+                    ctx.font = `${action.size * 5}px Arial`;
+                    ctx.fillText(action.text, action.x, action.y);
+                    break;
             }
             
-            // Slide management
-            document.getElementById('addSlide').addEventListener('click', addNewSlide);
-            document.getElementById('prevSlide').addEventListener('click', goToPreviousSlide);
-            document.getElementById('nextSlide').addEventListener('click', goToNextSlide);
-            
-            function addNewSlide() {
-                slides.push({
-                    shapes: [],
-                    boardColor: boardColor
-                });
-                currentSlide = slides.length - 1;
-                updateSlideCounter();
-                redrawWhiteboard();
-                saveToLocalStorage();
+            if (addToHistoryFlag) {
+                addToHistory(action);
             }
-            
-            function goToPreviousSlide() {
-                if (currentSlide > 0) {
-                    currentSlide--;
-                    boardColor = slides[currentSlide].boardColor || '#ffffff';
-                    blankCanvas.style.backgroundColor = boardColor;
-                    graphCanvas.style.backgroundColor = boardColor;
-                    updateSlideCounter();
-                    redrawWhiteboard();
-                }
-            }
-            
-            function goToNextSlide() {
-                if (currentSlide < slides.length - 1) {
-                    currentSlide++;
-                    boardColor = slides[currentSlide].boardColor || '#ffffff';
-                    blankCanvas.style.backgroundColor = boardColor;
-                    graphCanvas.style.backgroundColor = boardColor;
-                    updateSlideCounter();
-                    redrawWhiteboard();
-                }
-            }
-            
-            function updateSlideCounter() {
-                document.getElementById('slideCounter').textContent = `Slide ${currentSlide + 1} of ${slides.length}`;
-                
-                // Update thumbnails
-                const thumbnailsContainer = document.querySelector('.slide-thumbnails');
-                thumbnailsContainer.innerHTML = '';
-                
-                slides.forEach((slide, index) => {
-                    const thumbnail = document.createElement('div');
-                    thumbnail.className = `slide-thumbnail ${index === currentSlide ? 'active' : ''}`;
-                    thumbnail.textContent = index + 1;
-                    thumbnail.addEventListener('click', () => {
-                        currentSlide = index;
-                        boardColor = slides[currentSlide].boardColor || '#ffffff';
-                        blankCanvas.style.backgroundColor = boardColor;
-                        graphCanvas.style.backgroundColor = boardColor;
-                        updateSlideCounter();
-                        redrawWhiteboard();
-                    });
-                    thumbnailsContainer.appendChild(thumbnail);
-                });
-                
-                // Add the "+" button
-                const addButton = document.createElement('button');
-                addButton.className = 'add-slide';
-                addButton.innerHTML = '<i class="fas fa-plus"></i>';
-                addButton.addEventListener('click', addNewSlide);
-                thumbnailsContainer.appendChild(addButton);
-            }
-            
-            // Board color change
-            document.getElementById('boardColorBtn').addEventListener('click', function() {
-                document.getElementById('boardColorPicker').click();
-            });
-            
-            document.getElementById('boardColorPicker').addEventListener('input', function() {
-                boardColor = this.value;
-                blankCanvas.style.backgroundColor = boardColor;
-                graphCanvas.style.backgroundColor = boardColor;
-                
-                // Save board color to current slide
-                slides[currentSlide].boardColor = boardColor;
-                saveToLocalStorage();
-            });
-            
-            // Color picker
-            document.getElementById('colorPicker').addEventListener('input', function() {
-                currentColor = this.value;
-            });
-            
-            // Line width
-            document.getElementById('lineWidth').addEventListener('change', function() {
-                currentLineWidth = parseInt(this.value);
-            });
-            
-            // Invite functionality
-            document.getElementById('inviteBtn').addEventListener('click', function() {
-                document.getElementById('invite-modal').classList.add('active');
-                document.getElementById('inviteLink').value = window.location.href;
-            });
-            
-            document.getElementById('closeInviteModal').addEventListener('click', function() {
-                document.getElementById('invite-modal').classList.remove('active');
-            });
-            
-            document.getElementById('cancelInviteBtn').addEventListener('click', function() {
-                document.getElementById('invite-modal').classList.remove('active');
-            });
-            
-            document.getElementById('copyInviteLink').addEventListener('click', function() {
-                const inviteLink = document.getElementById('inviteLink');
-                inviteLink.select();
-                document.execCommand('copy');
-                showNotification('Link copied to clipboard');
-            });
-            
-            // Recording functionality
-            document.getElementById('recordBtn').addEventListener('click', toggleRecording);
-            
-            let isRecording = false;
-            let mediaRecorder;
-            let recordedChunks = [];
-            
-            async function toggleRecording() {
-                if (isRecording) {
-                    stopRecording();
-                } else {
-                    startRecording();
-                }
-            }
-            
-            async function startRecording() {
-                try {
-                    const stream = await navigator.mediaDevices.getDisplayMedia({
-                        video: true,
-                        audio: true
-                    });
-                    
-                    mediaRecorder = new MediaRecorder(stream);
-                    recordedChunks = [];
-                    
-                    mediaRecorder.ondataavailable = function(e) {
-                        if (e.data.size > 0) {
-                            recordedChunks.push(e.data);
-                        }
-                    };
-                    
-                    mediaRecorder.onstop = function() {
-                        const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                        const url = URL.createObjectURL(blob);
-                        
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `whiteboard-session-${new Date().toISOString()}.webm`;
-                        a.click();
-                        
-                        URL.revokeObjectURL(url);
-                    };
-                    
-                    mediaRecorder.start();
-                    isRecording = true;
-                    
-                    // Update UI
-                    document.getElementById('recordBtn').innerHTML = '<i class="fas fa-stop"></i> Stop';
-                    document.getElementById('recordingIndicator').style.display = 'flex';
-                    
-                    showNotification('Recording started');
-                    
-                } catch (err) {
-                    console.error('Error starting recording:', err);
-                    showNotification('Could not start recording', 'error');
-                }
-            }
-            
-            function stopRecording() {
-                if (mediaRecorder && isRecording) {
-                    mediaRecorder.stop();
-                    isRecording = false;
-                    
-                    // Update UI
-                    document.getElementById('recordBtn').innerHTML = '<i class="fas fa-circle"></i> Record';
-                    document.getElementById('recordingIndicator').style.display = 'none';
-                    
-                    showNotification('Recording saved');
-                }
-            }
-            
-            // Save to local storage
-            function saveToLocalStorage() {
-                const data = {
-                    slides: slides,
-                    currentSlide: currentSlide
-                };
-                localStorage.setItem('whiteboardData', JSON.stringify(data));
-            }
-            
-            // Video controls
-            let localStream;
-            
-            document.getElementById('toggleVideoBtn').addEventListener('click', toggleVideo);
-            document.getElementById('toggleMicBtn').addEventListener('click', toggleMic);
-            
-            async function toggleVideo() {
+        }
+        
+        // Media functions
+        async function toggleMic() {
+            try {
                 if (!localStream) {
-                    try {
-                        localStream = await navigator.mediaDevices.getUserMedia({ 
-                            video: true, 
-                            audio: true 
-                        });
-                        
-                        const videoPreview = document.querySelector('.video-preview');
-                        videoPreview.innerHTML = '<video autoplay muted style="width:100%;height:100%;"></video>';
-                        const videoElement = videoPreview.querySelector('video');
-                        videoElement.srcObject = localStream;
-                        
-                        document.getElementById('toggleVideoBtn').innerHTML = '<i class="fas fa-video-slash"></i> Video';
-                        showNotification('Video started');
-                    } catch (err) {
-                        console.error('Error accessing camera:', err);
-                        showNotification('Could not access camera', 'error');
+                    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideoOn });
+                    if (isVideoOn) {
+                        localVideo.srcObject = localStream;
+                        localVideoPlaceholder.style.display = 'none';
+                        localVideo.style.display = 'block';
                     }
+                }
+                
+                const audioTracks = localStream.getAudioTracks();
+                audioTracks.forEach(track => {
+                    track.enabled = !track.enabled;
+                });
+                
+                isMicOn = !isMicOn;
+                micBtn.classList.toggle('off', !isMicOn);
+                micBtn.querySelector('i').className = isMicOn ? 'fas fa-microphone' : 'fas fa-microphone-slash';
+                showNotification(isMicOn ? 'Microphone enabled' : 'Microphone muted');
+                
+                // Update WebRTC connection if it exists
+                if (peerConnection) {
+                    setupPeerConnection();
+                }
+            } catch (err) {
+                console.error('Error accessing microphone:', err);
+                showNotification('Could not access microphone');
+                isMicOn = false;
+                micBtn.classList.add('off');
+                micBtn.querySelector('i').className = 'fas fa-microphone-slash';
+            }
+        }
+        
+        async function toggleVideo() {
+            try {
+                if (!localStream) {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: isMicOn });
+                    localVideo.srcObject = localStream;
+                    localVideoPlaceholder.style.display = 'none';
+                    localVideo.style.display = 'block';
+                    isVideoOn = true;
+                    videoBtn.classList.remove('off');
+                    videoBtn.querySelector('i').className = 'fas fa-video';
+                    showNotification('Video enabled');
+                    
+                    // Start WebRTC connection
+                    setupPeerConnection();
                 } else {
                     const videoTracks = localStream.getVideoTracks();
                     videoTracks.forEach(track => {
                         track.enabled = !track.enabled;
                     });
                     
-                    const btn = document.getElementById('toggleVideoBtn');
-                    if (videoTracks[0].enabled) {
-                        btn.innerHTML = '<i class="fas fa-video-slash"></i> Video';
-                    } else {
-                        btn.innerHTML = '<i class="fas fa-video"></i> Video';
-                    }
-                }
-            }
-            
-            function toggleMic() {
-                if (localStream) {
-                    const audioTracks = localStream.getAudioTracks();
-                    audioTracks.forEach(track => {
-                        track.enabled = !track.enabled;
-                    });
+                    isVideoOn = !isVideoOn;
+                    videoBtn.classList.toggle('off', !isVideoOn);
+                    videoBtn.querySelector('i').className = isVideoOn ? 'fas fa-video' : 'fas fa-video-slash';
+                    localVideoPlaceholder.style.display = isVideoOn ? 'none' : 'flex';
+                    localVideo.style.display = isVideoOn ? 'block' : 'none';
+                    showNotification(isVideoOn ? 'Video enabled' : 'Video disabled');
                     
-                    const btn = document.getElementById('toggleMicBtn');
-                    if (audioTracks[0].enabled) {
-                        btn.innerHTML = '<i class="fas fa-microphone-slash"></i> Audio';
-                    } else {
-                        btn.innerHTML = '<i class="fas fa-microphone"></i> Audio';
+                    // Update WebRTC connection if it exists
+                    if (peerConnection) {
+                        setupPeerConnection();
                     }
-                } else {
-                    showNotification('Please start video first', 'warning');
                 }
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                showNotification('Could not access camera');
+                isVideoOn = false;
+                videoBtn.classList.add('off');
+                videoBtn.querySelector('i').className = 'fas fa-video-slash';
+                localVideoPlaceholder.style.display = 'flex';
+                localVideo.style.display = 'none';
             }
-            
-            // Event listeners for drawing
-            blankCanvas.addEventListener('mousedown', startDrawing);
-            blankCanvas.addEventListener('mousemove', draw);
-            blankCanvas.addEventListener('mouseup', stopDrawing);
-            blankCanvas.addEventListener('mouseout', stopDrawing);
-            
-            graphCanvas.addEventListener('mousedown', startDrawing);
-            graphCanvas.addEventListener('mousemove', draw);
-            graphCanvas.addEventListener('mouseup', stopDrawing);
-            graphCanvas.addEventListener('mouseout', stopDrawing);
-            
-            // Touch events for mobile
-            blankCanvas.addEventListener('touchstart', handleTouchStart);
-            blankCanvas.addEventListener('touchmove', handleTouchMove);
-            blankCanvas.addEventListener('touchend', handleTouchEnd);
-            
-            graphCanvas.addEventListener('touchstart', handleTouchStart);
-            graphCanvas.addEventListener('touchmove', handleTouchMove);
-            graphCanvas.addEventListener('touchend', handleTouchEnd);
-            
-            function handleTouchStart(e) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                const mouseEvent = new MouseEvent('mousedown', {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
-                activeCanvas.dispatchEvent(mouseEvent);
-            }
-            
-            function handleTouchMove(e) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                const mouseEvent = new MouseEvent('mousemove', {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
-                activeCanvas.dispatchEvent(mouseEvent);
-            }
-            
-            function handleTouchEnd(e) {
-                e.preventDefault();
-                const mouseEvent = new MouseEvent('mouseup', {});
-                activeCanvas.dispatchEvent(mouseEvent);
-            }
-            
-            // Utility functions
-            function generateUserId() {
-                return 'user-' + Math.random().toString(36).substr(2, 9);
-            }
-            
-            function getRandomColor() {
-                const letters = '0123456789ABCDEF';
-                let color = '#';
-                for (let i = 0; i < 6; i++) {
-                    color += letters[Math.floor(Math.random() * 16)];
-                }
-                return color;
-            }
-            
-            function showNotification(message, type = 'info') {
-                const notification = document.getElementById('notification');
-                const notificationText = document.getElementById('notificationText');
-                
-                notificationText.textContent = message;
-                notification.className = 'notification';
-                
-                switch(type) {
-                    case 'success':
-                        notification.classList.add('notification-success');
-                        break;
-                    case 'error':
-                        notification.classList.add('notification-error');
-                        break;
-                    case 'warning':
-                        notification.classList.add('notification-warning');
-                        break;
-                    default:
-                        notification.classList.add('notification-info');
-                }
-                
-                notification.classList.add('show');
-                notification.classList.add('animate-fadeInUp');
-                
-                // Hide after 3 seconds
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 3000);
-            }
-            
-            // Show welcome notification
-            setTimeout(() => {
-                showNotification('Welcome to WhiteBoard Education! Start collaborating with your team.', 'success');
-            }, 500);
         }
+        
+        function setupPeerConnection() {
+            if (peerConnection) {
+                peerConnection.close();
+            }
+            
+            peerConnection = new RTCPeerConnection(configuration);
+            
+            // Add local stream to connection
+            if (localStream) {
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+            }
+            
+            // Listen for ICE candidates
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit('iceCandidate', { 
+                        candidate: event.candidate,
+                        boardId,
+                        userId
+                    });
+                }
+            };
+            
+            // Listen for remote stream
+            peerConnection.ontrack = (event) => {
+                remoteVideo.srcObject = event.streams[0];
+                remoteVideoPlaceholder.style.display = 'none';
+                remoteVideo.style.display = 'block';
+            };
+            
+            // Create and send offer
+            peerConnection.createOffer()
+                .then(offer => peerConnection.setLocalDescription(offer))
+                .then(() => {
+                    socket.emit('offer', {
+                        offer: peerConnection.localDescription,
+                        boardId,
+                        userId
+                    });
+                })
+                .catch(err => {
+                    console.error('Error creating offer:', err);
+                });
+        }
+        
+        // Loading screen functions
+        function showLoading(message) {
+            loadingScreen.style.display = 'flex';
+            loadingText.textContent = message;
+        }
+        
+        function hideLoading() {
+            loadingScreen.style.display = 'none';
+        }
+        
+        // Socket.io event handlers
+        socket.on('boardCreated', (data) => {
+            boardId = data.boardId;
+            boardIdElement.textContent = data.boardId;
+            
+            // Update URL with board ID
+            const url = new URL(window.location.href);
+            url.searchParams.set('board', data.boardId);
+            window.history.pushState({}, '', url);
+            
+            showNotification('New board created! Share the URL to collaborate.');
+            hideLoading();
+        });
+        
+        socket.on('boardJoined', (data) => {
+            boardId = data.boardId;
+            boardIdElement.textContent = data.boardId;
+            
+            // Load existing drawings
+            drawingHistory = data.drawings || [];
+            historyPointer = drawingHistory.length - 1;
+            redrawWhiteboard();
+            
+            showNotification(`Joined board ${data.boardId}`);
+            hideLoading();
+        });
+        
+        socket.on('userJoined', (user) => {
+            users[user.userId] = user;
+            updateUserList();
+            showNotification(`${user.userName} joined the board`);
+            
+            // If we have media and a new user joins, set up connection
+            if (localStream && Object.keys(users).length === 2) {
+                setupPeerConnection();
+            }
+        });
+        
+        socket.on('existingUsers', (existingUsers) => {
+            users = { ...users, ...existingUsers };
+            updateUserList();
+            
+            // If there are existing users and we have media, set up connection
+            if (localStream && Object.keys(existingUsers).length > 0) {
+                setupPeerConnection();
+            }
+        });
+        
+        socket.on('userLeft', (userId) => {
+            const userName = users[userId]?.userName || 'A user';
+            delete users[userId];
+            
+            // Remove cursor
+            const cursor = document.getElementById(`cursor-${userId}`);
+            if (cursor) cursor.remove();
+            
+            updateUserList();
+            showNotification(`${userName} left the board`);
+            
+            // Reset peer connection if no users left
+            if (Object.keys(users).length <= 1 && peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+                remoteVideo.srcObject = null;
+                remoteVideo.style.display = 'none';
+                remoteVideoPlaceholder.style.display = 'flex';
+            }
+        });
+        
+        socket.on('userCursor', (data) => {
+            const userId = data.userId;
+            const x = data.x;
+            const y = data.y;
+            const color = users[userId]?.userColor || '#000000';
+            
+            let cursor = document.getElementById(`cursor-${userId}`);
+            
+            if (!cursor) {
+                cursor = document.createElement('div');
+                cursor.id = `cursor-${userId}`;
+                cursor.className = 'cursor';
+                cursor.style.backgroundColor = color;
+                
+                // Add user name to cursor
+                const userName = document.createElement('div');
+                userName.className = 'cursor-name';
+                userName.textContent = users[userId]?.userName || 'User';
+                userName.style.color = color;
+                cursor.appendChild(userName);
+                
+                whiteboard.parentElement.appendChild(cursor);
+            }
+            
+            cursor.style.left = `${x}px`;
+            cursor.style.top = `${y}px`;
+        });
+        
+        socket.on('drawing', (action) => {
+            drawAction(action);
+        });
+        
+        socket.on('undo', () => {
+            if (historyPointer >= 0) {
+                historyPointer--;
+                redrawWhiteboard();
+            }
+        });
+        
+        socket.on('redo', () => {
+            if (historyPointer < drawingHistory.length - 1) {
+                historyPointer++;
+                redrawWhiteboard();
+            }
+        });
+        
+        socket.on('clear', () => {
+            drawingHistory = [];
+            historyPointer = -1;
+            redrawWhiteboard();
+        });
+        
+        socket.on('userCount', (count) => {
+            userCount.textContent = count;
+        });
+        
+        // WebRTC events
+        socket.on('offer', async (data) => {
+            if (data.userId === userId) return;
+            
+            if (!peerConnection) {
+                setupPeerConnection();
+            }
+            
+            try {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                
+                socket.emit('answer', {
+                    answer,
+                    boardId,
+                    userId,
+                    toUserId: data.userId
+                });
+            } catch (err) {
+                console.error('Error handling offer:', err);
+            }
+        });
+        
+        socket.on('answer', async (data) => {
+            if (data.userId === userId) return;
+            try {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            } catch (err) {
+                console.error('Error handling answer:', err);
+            }
+        });
+        
+        socket.on('iceCandidate', async (data) => {
+            if (data.userId === userId) return;
+            try {
+                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            } catch (err) {
+                console.error('Error adding ICE candidate:', err);
+            }
+        });
+        
+        // Helper functions
+        function updateUserList() {
+            userList.innerHTML = '';
+            
+            Object.values(users).forEach(user => {
+                if (user.userId === userId) return;
+                
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                
+                const userColor = document.createElement('div');
+                userColor.className = 'user-color';
+                userColor.style.backgroundColor = user.userColor;
+                
+                const userName = document.createElement('div');
+                userName.className = 'user-name';
+                userName.textContent = user.userName;
+                
+                userItem.appendChild(userColor);
+                userItem.appendChild(userName);
+                userList.appendChild(userItem);
+            });
+        }
+        
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Media button event listeners
+        micBtn.addEventListener('click', toggleMic);
+        videoBtn.addEventListener('click', toggleVideo);
+        
+        // Initialize
+        initWhiteboard();
     </script>
 </body>
 </html>
